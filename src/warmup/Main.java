@@ -35,20 +35,20 @@ public class Main {
     		}
     		
     		if (collisionTime < 1) {
-    			System.out.println("Time until collision = " + collisionTime + " with " + nextWall);
-    			System.out.println("Ball going to collide currently at Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
+    			//TODO: System.out.println("Time until collision = " + collisionTime + " with " + nextWall);
+    			//TODO: System.out.println("Ball going to collide currently at Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
     			ball = ball.move(collisionTime);
-    			System.out.println("Ball at collision point Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
+    			//TODO: System.out.println("Ball at collision point Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
     			ball.setVelocity(Physics.reflectWall(nextWall, ball.getVelocity()));
-    			System.out.println("Collision! Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
+    			//TODO: System.out.println("Collision! Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
     			ball = ball.move(1 - collisionTime);
-    			System.out.println("Ball rebounded to Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
+    			//TODO: System.out.println("Ball rebounded to Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
     			continue;
     		}
     		
     		ball = ball.move(1);
     		
-    		System.out.println("Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
+    		//TODO: System.out.println("Position= " + ball.getPosition() + ", Velocity = " + ball.getVelocity());
     	}
     }
     

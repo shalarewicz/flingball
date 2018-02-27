@@ -18,7 +18,7 @@ import physics.*;
  */
 public class Ball {
 	
-	private Vect position, velocity;
+	private Vect boardCenter, velocity, cartesianCenter, anchor;
 	private double radius;
 	
 	/*
@@ -38,16 +38,44 @@ public class Ball {
 	}
 	
 	/**
-	 * Creates a new Ball. 
-	 * @param position center of the ball
+	 * Creates a new Ball for use on a flingBall board with center center
+	 * @param center center of the ball
 	 * @param velocity velocity of the ball
 	 * @param radius radius of the ball. Must be greater than zero
 	 */
-	public Ball(Vect position, Vect velocity, double radius) {
-		this.position = new Vect(position.x(), -position.y());
-		this.velocity = velocity;
+	public Ball(Vect center, Vect velocity, double radius) {
+		this.boardCenter = center;
+		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
+		this.anchor = new Vect(center.x() - radius, center.y() - radius);
+		this.velocity = new Vect(velocity.x(), velocity.y());//TODO: MAKE THIS POSITIVE IF IT CAUSES PROBLEMS
 		this.radius = radius;
 		checkRep();
+	}
+	
+	/**
+	 * Given the coordinate of the center of a ball on a flingball board. Returns the center in Cartesian space.
+	 * 
+	 * @param center center of the ball on a flingabll board
+	 * @return center of the ball in Cartesian Space. 
+	 */
+	private static Vect getCartesianCenterFromBoardCenter(Vect boardCenter) {
+		return new Vect(boardCenter.x(), -boardCenter.y());
+	}
+	
+	private static Vect getBoardCenterFromCartesianCenter(Vect cartesianCenter) {
+		return new Vect(cartesianCenter.x(), -cartesianCenter.y());
+	}
+	
+	/**
+	 * Computes the anchor of the bounding box of the ball. The anchor is the top left corner of the bounding box.
+	 * @return anchor of the ball on a flingBall board. 
+	 */
+	private Vect getAnchorFromCartesianCenter(Vect cartesianCenter) {
+		return new Vect(cartesianCenter.x() - this.radius, -cartesianCenter.y() - this.radius);
+	}
+	
+	private Vect getAnchorFromBoardCenter(Vect boardCenter) {
+		return new Vect(boardCenter.x() - this.radius, boardCenter.y() - this.radius);
 	}
 	
 	/**
@@ -61,9 +89,10 @@ public class Ball {
 	//TODO Ball should be mutable? otherwise need to remove and add balls to the board each time they change
 	public void move(double time) {
 		// distance = position + velocity * t
-		Vect newPosition = this.position.plus(this.velocity.times(time));
-		this.position = newPosition;
-	//	return new Ball(newPosition, this.velocity, this.radius);
+		Vect newCenter = this.cartesianCenter.plus(this.velocity.times(time));
+		this.cartesianCenter = newCenter;
+		this.boardCenter = getBoardCenterFromCartesianCenter(newCenter);
+		this.anchor = getAnchorFromCartesianCenter(newCenter);
 	}
 	
 	/**
@@ -100,9 +129,9 @@ public class Ball {
 		// displacement = v_i*t + a*t*t = v_i*t + deltaV * t
 		Vect displacement = this.velocity.times(time).plus(deltaV.times(time));
 		
-		Vect newPosition = this.position.plus(displacement);
+		Vect newBoardCenter = getBoardCenterFromCartesianCenter(this.cartesianCenter.plus(displacement));
 		
-		return new Ball(newPosition, newVelocity, this.radius);
+		return new Ball(newBoardCenter, newVelocity, this.radius);
 		
 	}
 	
@@ -110,14 +139,27 @@ public class Ball {
 	
 	/**
 	 * 
-	 * @return The position of the origin of the bounding box of the ball
+	 * @return The position of the origin (top left) of the bounding box of the ball
 	 */
-	public Vect getPosition() {
-		
-		final double xAnchor = this.position.x() - radius;
-		final double yAnchor = -this.position.y() - radius;
-		Vect result = new Vect(xAnchor, yAnchor);
-		return result;
+	//TODO Does this need to be public?
+	public Vect getAnchor() {
+		return this.anchor;
+	}
+	
+	/**
+	 * 
+	 * @return The position of the center of the ball on a flingball board.
+	 */
+	public Vect getBoardCenter() {
+		return this.boardCenter;
+	}
+	
+	/**
+	 * 
+	 * @return The position of the center of the ball in Cartesian Space.
+	 */
+	private Vect getCartesianCenter() {
+		return this.cartesianCenter;
 	}
 	
 	/**
@@ -142,7 +184,7 @@ public class Ball {
 	 * @return A ball with velocity v
 	 */
 	public Ball setVelocity(Vect v) {
-		return new Ball(this.position, v, this.radius);
+		return new Ball(this.boardCenter, v, this.radius);
 	}
 	
 	/**
@@ -150,7 +192,7 @@ public class Ball {
 	 * @return An image of the ball
 	 */
 	public BufferedImage generate(int L) {
-		final int diameter = (int) (radius*L);
+		final int diameter = (int) (2*radius*L);
 		BufferedImage output = new BufferedImage(diameter, diameter, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = (Graphics2D) output.getGraphics();
         
@@ -169,7 +211,7 @@ public class Ball {
 	 * @return Collision time in seconds or POSITIVE_INFINITY if no collision will occur
 	 */
 	public double timeUntilLineCollision(LineSegment line) {
-		return Physics.timeUntilWallCollision(line, new Circle(this.position, this.radius), this.velocity);
+		return Physics.timeUntilWallCollision(line, new Circle(this.cartesianCenter, this.radius), this.velocity);
 	}
 	
 	/**
@@ -180,17 +222,19 @@ public class Ball {
 	 * @return Collision time in seconds or POSITIVE_INFINITY if no collision will occur
 	 */
 	public double timeUntilCircleCollision(Circle circle) {
-		return Physics.timeUntilCircleCollision(circle, new Circle(this.position, this.radius), this.velocity);
+		//TODO: NOT WORKING
+		//TODO: System.out.println("Ball 226: Bumper: " + circle.toString() + " " + this);
+		return Physics.timeUntilCircleCollision(circle, new Circle(this.cartesianCenter, this.radius), this.velocity);
 	}
 	
 	/**
-	 * Returns a ball that has perfect elastic collision with a line,
+	 * Returns a ball that has perfectly elastic collision with a line,
 	 * 
 	 * @param line with which the ball is colliding
 	 * @return A ball that has collided with the line. 
 	 */
 	public Ball reflectLine(LineSegment line) {
-		return new Ball(new Vect(this.position.x(), -this.position.y()), Physics.reflectWall(line, this.velocity), this.radius);
+		return new Ball(this.boardCenter, Physics.reflectWall(line, this.velocity), this.radius);
 	}
 	
 	/**
@@ -200,7 +244,12 @@ public class Ball {
 	 * @return A ball which has collided with the line
 	 */
 	public Ball reflectLine(LineSegment line, Double reflectionCoeff) {
-		return new Ball(new Vect(this.position.x(), -this.position.y()), Physics.reflectWall(line, this.velocity, reflectionCoeff), this.radius);
+		System.out.println("before" + this);
+		new Ball(this.boardCenter, Physics.reflectWall(line, this.velocity, reflectionCoeff), this.radius);
+		Ball result = new Ball(this.boardCenter, Physics.reflectWall(line, this.velocity, reflectionCoeff), this.radius);
+		System.out.println("after" + result);
+		return result;
+		//return new Ball(this.boardCenter, Physics.reflectWall(line, this.velocity, reflectionCoeff), this.radius);
 	}
 	
 	/**
@@ -209,7 +258,7 @@ public class Ball {
 	 * @return A ball that has collided with the circle
 	 */
 	public Ball reflectCircle(Circle circle) {
-		return new Ball(new Vect(this.position.x(), -this.position.y()), Physics.reflectCircle(circle.getCenter(), this.position, velocity), this.radius);
+		return new Ball(this.boardCenter, Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, velocity), this.radius);
 	}
 	
 	/**
@@ -219,7 +268,7 @@ public class Ball {
 	 * @return A ball which has collided with the circle
 	 */
 	public Ball reflectCircle(Circle circle, Double reflectionCoeff) {
-		return new Ball(new Vect(this.position.x(), -this.position.y()), Physics.reflectCircle(circle.getCenter(), this.position, velocity, reflectionCoeff), this.radius);
+		return new Ball(this.boardCenter, Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, velocity, reflectionCoeff), this.radius);
 	}
 	
 	@Override
@@ -229,13 +278,13 @@ public class Ball {
 
 	private boolean sameParts(Ball that) {
 		return this.velocity == that.velocity &&
-				this.position == that.position &&
+				this.cartesianCenter == that.cartesianCenter &&
 				this.radius == that.radius;
 	}
 	
 	@Override
 	public String toString() {
-		return "Ball{center=" + this.position + ", velocity=" + this.velocity + ", radius=" + this.radius + "}";
+		return "Ball{center=" + this.boardCenter + ", velocity=" + this.velocity + ", radius=" + this.radius + "}";
 	}
 	
 	@Override
@@ -243,6 +292,7 @@ public class Ball {
 		//TODO
 		throw new RuntimeException("Not yet implemented");
 	}
+	
 	public static void main(String[] args) {
         JFrame frame = new JFrame("this is a ball");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

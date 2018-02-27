@@ -157,12 +157,15 @@ public class Wall implements Gadget {
 		final Ball newBall;
 		
 		if (collisionTime == timeToWall) {
+		System.out.println("Wall 160: hit line");
 			newBall = ball.reflectLine(this.wall, this.REFLECTION_COEFFICIENT);	
 		}
 		else if (collisionTime == timeToc1) {
+		System.out.println("Wall 164: hit cirlce");
 			newBall = ball.reflectCircle(c1, this.REFLECTION_COEFFICIENT);
 		}
 		else {
+		System.out.println("Wall 168: hit cirlce");
 			newBall = ball.reflectCircle(c2, this.REFLECTION_COEFFICIENT);
 			
 		}

@@ -15,13 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import java.util.Timer;
-import java.util.TimerTask;
 
 import physics.Vect;
 
@@ -38,6 +33,9 @@ public class Board extends JPanel{
 	
 	//private int height, width;
 	
+	//TODO What is this?
+	private static final long serialVersionUID = 1L;
+	
 	private final int HEIGHT = 20;
 	private final int WIDTH = 20;
 	private final Wall TOP = new Wall ("TOP", 0, 0, WIDTH, 0);
@@ -52,7 +50,12 @@ public class Board extends JPanel{
 	
 	private final int L = 30;
 	
-	public Board() {}
+	public Board() {
+		this.gadgets = new ArrayList<Gadget>();
+		this.triggers = new HashMap<Gadget,Gadget>();
+		this.balls = new ArrayList<Ball>();
+		checkRep();
+	}
 	
 	// This can used when creating custom sized boards
 //	public Board(int height, int width) {
@@ -70,9 +73,10 @@ public class Board extends JPanel{
 //		
 //	}
 
-	private Board(List<Gadget> newGadgets, Map<Gadget, Gadget> newTriggers) {
+	private Board(List<Gadget> newGadgets, Map<Gadget, Gadget> newTriggers, List<Ball> balls) {
 		this.gadgets = newGadgets;
 		this.triggers = newTriggers;
+		this.balls = balls;
 		checkRep();
 	
 	}
@@ -92,6 +96,7 @@ public class Board extends JPanel{
 		}
 		
 //		for (Ball ball : balls) {
+//			//TODO: Fix this
 //			assert ball.getPosition().x() >= 0;
 //			assert ball.getPosition().x() <= WIDTH;
 //			assert -ball.getPosition().y() <= 0;
@@ -155,7 +160,7 @@ public class Board extends JPanel{
 		List<Gadget> newGadgets = new ArrayList<Gadget>(this.gadgets);
 		newGadgets.add(gadget);
 		
-		return new Board(newGadgets, newTriggers);
+		return new Board(newGadgets, newTriggers, this.balls);
 	}
 	
 	/**
@@ -193,11 +198,9 @@ public class Board extends JPanel{
 		
 		graphics.setColor(Color.BLUE);
 		for (Ball ball : balls) {
-			final int xAnchor = (int) ball.getPosition().x() * L;
-			final int yAnchor = (int) ball.getPosition().y() * L;
+			final Vect anchor = ball.getAnchor().times(L);
 			
-			
-			graphics.drawImage(ball.generate(L), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
+			graphics.drawImage(ball.generate(L), (int) anchor.x(), (int) anchor.y(), NO_OBSERVER_NEEDED);
 					
 		}
 		
@@ -222,11 +225,10 @@ public class Board extends JPanel{
 		
 		graphics.setColor(Color.BLUE);
 		for (Ball ball : balls) {
-			final int xAnchor = (int) ball.getPosition().x() * L;
-			final int yAnchor = (int) ball.getPosition().y() * L;
+			final Vect anchor = ball.getAnchor().times(L);
 			
 			
-			graphics.drawImage(ball.generate(L), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
+			graphics.drawImage(ball.generate(L), (int) anchor.x(), (int) anchor.y(), NO_OBSERVER_NEEDED);
 					
 		}
 		
@@ -307,18 +309,31 @@ public class Board extends JPanel{
 		final Gadget NO_COLLISION = new Wall("NO_COLLISION", 0, 0, 0, 0);
 		for (int i = 0; i < this.balls.size(); i++) {
 			Ball ball = this.balls.get(i);
-			System.out.println(ball);
 			double collisionTime = Double.POSITIVE_INFINITY;
-			Gadget nextWall = NO_COLLISION;
-			for (Gadget wall : this.WALLS) {
-				if (wall.collisionTime(ball) < collisionTime) {
-					collisionTime = wall.collisionTime(ball);
-					nextWall = wall;
+			Gadget nextGadget = NO_COLLISION;
+			
+			for (Gadget gadget : this.gadgets) {
+				//TODO:System.out.println(gadget);
+				if (gadget.collisionTime(ball) < collisionTime) {
+					collisionTime = gadget.collisionTime(ball);
+					//TODO:System.out.println(gadget +" "+ collisionTime);
+					nextGadget = gadget;
 				}
 			}
-			if (collisionTime <= time && nextWall != NO_COLLISION) {
+			if (nextGadget == NO_COLLISION) {
+				for (Gadget wall : this.WALLS) {
+					if (wall.collisionTime(ball) < collisionTime) {
+						collisionTime = wall.collisionTime(ball);
+						nextGadget = wall;
+					}
+				}
+			}
+			
+			if (collisionTime <= time && nextGadget != NO_COLLISION) {
+				//TODO: If two objects are stuck to each other the ball will not move. 
+				//TODO: A ball will bounce off a square bumper or line if it goes right next to it parallel to a side
 				ball.move(collisionTime);
-				Ball newBall = nextWall.reflectBall(ball);
+				Ball newBall = nextGadget.reflectBall(ball);
 				this.removeBall(ball);
 				this.addBall(newBall);
 				newBall.move(time - collisionTime);

@@ -4,20 +4,26 @@
  */
 package flingball;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import physics.Physics;
 import physics.Vect;
 
 public class SquareBumper implements Gadget {
 	
-	private final String trigger = NO_TRIGGER;
+	private final String trigger = Gadget.NO_TRIGGER;
 	private final String name;
 	
-	private double reflectionCoefficient = 1.0;
+	private double reflectionCoefficient = Gadget.REFLECTION_COEFFICIENT;
 	
 	private final int xAnchor, yAnchor;
 	
@@ -108,8 +114,15 @@ public class SquareBumper implements Gadget {
 
 	@Override
 	public BufferedImage generate(int L) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		BufferedImage output = new BufferedImage(L, L, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D graphics = (Graphics2D) output.getGraphics();
+        
+        graphics.setColor(Color.RED);
+        graphics.fillRect(0, 0, L, L);
+        
+        return output;
+		
 	}
 
 	@Override
@@ -122,5 +135,35 @@ public class SquareBumper implements Gadget {
 		}
 		
 		throw new RuntimeException("Should never get here. Ball did not collide with SquareBumper");
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "Square Bumper:" + this.name + " " + this.position();
+	}
+	
+	@Override
+	public int hashCode() {
+		// Does this create a problem for a square and circle bumper in the same spot?
+		return this.xAnchor + this.yAnchor;
+	}
+	
+	@Override
+	public boolean equals(Object that) {
+		return that instanceof SquareBumper && this.samePosition((SquareBumper) that);
+	}
+
+	private boolean samePosition(SquareBumper that) {
+		return this.xAnchor == that.xAnchor && this.yAnchor == that.yAnchor;
+ 	}
+	
+	public static void main(String[] args) {
+		JFrame frame = new JFrame("this is a square bumper");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Gadget toDraw = new SquareBumper("bumper", 1,1);
+        frame.add(new JLabel(new ImageIcon(toDraw.generate(20))));
+        frame.pack();
+        frame.setVisible(true);
 	}
 }

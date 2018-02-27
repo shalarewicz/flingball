@@ -96,8 +96,18 @@ public interface Gadget {
 	 */
 	public BufferedImage generate(int L);
 	
+	//TODO: Make NO_TRIGGER a Gadget. 
 	public final static String NO_TRIGGER = "NO_TRIGGER";
 	public final static Double REFLECTION_COEFFICIENT = 1.0;
+	
+	@Override
+	public int hashCode();
+	
+	@Override
+	public String toString();
+	
+	@Override
+	public boolean equals(Object that);
 	
 	
 	

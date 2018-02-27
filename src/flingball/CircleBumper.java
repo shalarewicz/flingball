@@ -4,6 +4,8 @@
  */
 package flingball;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import physics.Circle;
@@ -17,17 +19,18 @@ public class CircleBumper implements Gadget {
 	 * TODO: Safety from rep exposure
 	 */
 
+	private final String trigger = NO_TRIGGER;
 	private final int x, y;
 	private final double RADIUS = 0.5;
 	private String name;
-	private double reflectionCoefficient = 1.0;
+	private double reflectionCoefficient = Gadget.REFLECTION_COEFFICIENT;
 	private final Circle bumper;
 	
 	public CircleBumper(String name, int x, int y) {
 		this.x = x;
 		this.y = -y;
 		this.name = name;
-		this.bumper = new Circle(new Vect (x + RADIUS, y - RADIUS), RADIUS);
+		this.bumper = new Circle(new Vect (x + RADIUS, -y - RADIUS), RADIUS);
 		checkRep();
 	}
 	
@@ -37,7 +40,7 @@ public class CircleBumper implements Gadget {
 
 	@Override
 	public Vect position() {
-		return new Vect(x, y);
+		return new Vect(x, -y);
 	}
 
 	@Override
@@ -58,6 +61,8 @@ public class CircleBumper implements Gadget {
 
 	@Override
 	public double collisionTime(Ball ball) {
+		//TODO: this has a problem
+		//TODO: System.out.println("CircleBumper 65:" + ball.timeUntilCircleCollision(bumper));
 		return ball.timeUntilCircleCollision(bumper);
 	}
 
@@ -75,8 +80,7 @@ public class CircleBumper implements Gadget {
 
 	@Override
 	public String getTrigger() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.trigger;
 	}
 
 	@Override
@@ -93,12 +97,38 @@ public class CircleBumper implements Gadget {
 
 	@Override
 	public BufferedImage generate(int L) {
-		// TODO Auto-generated method stub
-		return null;
+		BufferedImage output = new BufferedImage(L, L, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D graphics = (Graphics2D) output.getGraphics();
+        
+        graphics.setColor(Color.ORANGE);
+        graphics.fillArc(0, 0, L, L, 0, 360);
+        
+        return output;
 	}
 
 	@Override
 	public Ball reflectBall(Ball ball) {
+		//TODO
+		System.out.println("CircleBumper 112: hit a circle");
 		return ball.reflectCircle(this.bumper);
 	}
+	
+	@Override
+	public String toString() {
+		return "Circle Bumper:" + this.name + " " + this.position();
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.x + this.y;
+	}
+	
+	@Override
+	public boolean equals(Object that) {
+		return that instanceof CircleBumper && this.samePosition((CircleBumper) that);
+	}
+
+	private boolean samePosition(CircleBumper that) {
+		return this.x == that.x && this.y == that.y;
+ 	}
 }
