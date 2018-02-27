@@ -306,44 +306,45 @@ public class Board extends JPanel{
 //	}
 	
 	public void play(double time) {
-		final Gadget NO_COLLISION = new Wall("NO_COLLISION", 0, 0, 0, 0);
 		for (int i = 0; i < this.balls.size(); i++) {
-			Ball ball = this.balls.get(i);
-			double collisionTime = Double.POSITIVE_INFINITY;
-			Gadget nextGadget = NO_COLLISION;
-			
-			for (Gadget gadget : this.gadgets) {
-				//TODO:System.out.println(gadget);
-				if (gadget.collisionTime(ball) < collisionTime) {
-					collisionTime = gadget.collisionTime(ball);
-					//TODO:System.out.println(gadget +" "+ collisionTime);
-					nextGadget = gadget;
-				}
-			}
-			if (nextGadget == NO_COLLISION) {
-				for (Gadget wall : this.WALLS) {
-					if (wall.collisionTime(ball) < collisionTime) {
-						collisionTime = wall.collisionTime(ball);
-						nextGadget = wall;
-					}
-				}
-			}
-			
-			if (collisionTime <= time && nextGadget != NO_COLLISION) {
-				//TODO: If two objects are stuck to each other the ball will not move. 
-				//TODO: A ball will bounce off a square bumper or line if it goes right next to it parallel to a side
-				ball.move(collisionTime);
-				Ball newBall = nextGadget.reflectBall(ball);
-				this.removeBall(ball);
-				this.addBall(newBall);
-				newBall.move(time - collisionTime);
-				continue;
-			} else {		
-				ball.move(time);
-			}
+			moveOneBall(balls.get(i), time);
 		}
 	}
 
+	private void moveOneBall(Ball ball, final double time) {
+		final Gadget NO_COLLISION = new Wall("NO_COLLISION", 0, 0, 0, 0);
+		double collisionTime = Double.POSITIVE_INFINITY;
+		Gadget nextGadget = NO_COLLISION;
+		
+		for (Gadget gadget : this.gadgets) {
+			//TODO:System.out.println(gadget);
+			if (gadget.collisionTime(ball) < collisionTime) {
+				collisionTime = gadget.collisionTime(ball);
+				//TODO:System.out.println(gadget +" "+ collisionTime);
+				nextGadget = gadget;
+			}
+		}
+		if (nextGadget == NO_COLLISION) {
+			for (Gadget wall : this.WALLS) {
+				if (wall.collisionTime(ball) < collisionTime) {
+					collisionTime = wall.collisionTime(ball);
+					nextGadget = wall;
+				}
+			}
+		}
+		
+		if (collisionTime <= time && nextGadget != NO_COLLISION) {
+			//TODO: If two objects are stuck to each other the ball will not move. 
+			//TODO: A ball will bounce off a square bumper or line if it goes right next to it parallel to a side
+			ball.move(collisionTime);
+			Ball newBall = nextGadget.reflectBall(ball);
+			this.removeBall(ball);
+			this.addBall(newBall);
+			moveOneBall(newBall, time - collisionTime);
+		} else {		
+			ball.move(time);
+		}
+	}
 
 	
 //	public class TestPane extends JPanel {

@@ -84,7 +84,7 @@ public interface Gadget {
 	public void setAction() throws InvalidObjectException;
 	
 	/**
-	 * TODO Shoudl this return an action or take the action?
+	 * TODO Should this return an action or take the action?
 	 */
 	public void action();
 	

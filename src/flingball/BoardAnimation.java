@@ -31,8 +31,8 @@ public class BoardAnimation {
 	    public static void main(String[] args) {
 	    	Board toDraw = new Board();
 	    	//TODO Ball appears on row above bumpers despite having same y position. 
-	    	//TODO: Ball goes out top left corner? Ball toPlay = new Ball(new Vect(4.5,5.5), new Vect(-1,2), 0.5);
-	    	Ball toPlay = new Ball(new Vect(4.5, 5.5), new Vect(0,-0.7), 0.5);
+	    	Ball toPlay = new Ball(new Vect(4.5,5.5), new Vect(-1,2), 0.5);
+	    	//Ball toPlay = new Ball(new Vect(4.5, 5.5), new Vect(0,-0.7), 0.5);
 	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
 	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
 	        toDraw.addBall(toPlay);
@@ -82,7 +82,7 @@ public class BoardAnimation {
 	                    repaint();
 	                }
 	            };
-	            timer.schedule(play, 0, 25);//TODO Change frame rate for speed if needed
+	            timer.schedule(play, 0, 1);//TODO Change frame rate for speed if needed
 	        }
 
 
@@ -103,7 +103,6 @@ public class BoardAnimation {
 	    		graphics.setColor(Color.BLUE);
 	    		for (Ball ball : this.board.getBalls()) {
 	    			final Vect anchor = ball.getAnchor().times(20);
-	    			System.out.println("BoardAnimation 105: Ball center is " + ball.getBoardCenter());
 	    			
 	    			
 	    			g2d.drawImage(ball.generate(20), (int) anchor.x(), (int) anchor.y(), NO_OBSERVER_NEEDED);

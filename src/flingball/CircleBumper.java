@@ -61,8 +61,6 @@ public class CircleBumper implements Gadget {
 
 	@Override
 	public double collisionTime(Ball ball) {
-		//TODO: this has a problem
-		//TODO: System.out.println("CircleBumper 65:" + ball.timeUntilCircleCollision(bumper));
 		return ball.timeUntilCircleCollision(bumper);
 	}
 
@@ -108,8 +106,6 @@ public class CircleBumper implements Gadget {
 
 	@Override
 	public Ball reflectBall(Ball ball) {
-		//TODO
-		System.out.println("CircleBumper 112: hit a circle");
 		return ball.reflectCircle(this.bumper);
 	}
 	
