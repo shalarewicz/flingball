@@ -32,8 +32,7 @@ public class BoardAnimation {
 	    	Board toDraw = new Board();
 	    	//TODO Ball appears on row above bumpers despite having same y position. 
 	    	//TODO: Ball goes out top left corner? Ball toPlay = new Ball(new Vect(4.5,5.5), new Vect(-1,2), 0.5);
-	    	//TODO: Ball get stuck Ball toPlay = new Ball(new Vect(4.5, 5.5), new Vect(0,-1), 0.5);
-	    	Ball toPlay = new Ball(new Vect(5.5, 4.5), new Vect(1,0), 0.5);
+	    	Ball toPlay = new Ball(new Vect(4.5, 5.5), new Vect(0,-0.7), 0.5);
 	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
 	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
 	        toDraw.addBall(toPlay);
@@ -83,7 +82,7 @@ public class BoardAnimation {
 	                    repaint();
 	                }
 	            };
-	            timer.schedule(play, 0, 100);//TODO
+	            timer.schedule(play, 0, 25);//TODO Change frame rate for speed if needed
 	        }
 
 
