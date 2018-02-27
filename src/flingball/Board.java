@@ -48,7 +48,8 @@ public class Board extends JPanel{
 	private List<Ball> balls = new ArrayList<Ball>();
 	private Map<Gadget, Gadget> triggers;
 	
-	private final int L = 30;
+	//TODO Allow user to set this field
+	final int L = 40;
 	
 	public Board() {
 		this.gadgets = new ArrayList<Gadget>();
@@ -95,14 +96,18 @@ public class Board extends JPanel{
 			
 		}
 		
-//		for (Ball ball : balls) {
-//			//TODO: Fix this
-//			assert ball.getPosition().x() >= 0;
-//			assert ball.getPosition().x() <= WIDTH;
-//			assert -ball.getPosition().y() <= 0;
-//			assert -ball.getPosition().y() >= -HEIGHT;
-//			
-//		}
+		for (Ball ball : balls) {
+			//TODO floating point math is screwing 
+//			final double radius = ball.getRadius();
+//			final double cx = ball.getBoardCenter().x();
+//			final double cy = ball.getBoardCenter().y();
+//			System.out.println(cx - radius);
+//			assert cx - radius >= 0;
+//			assert cx + radius <= WIDTH;
+//			assert cy - radius >= 0;
+//			assert cy + radius <= HEIGHT;
+			
+		}
 	}
 	
 	
@@ -140,7 +145,7 @@ public class Board extends JPanel{
 	/**
 	 * 
 	 * @param gadget gadget to be added to the board
-	 * @return a board with the added gadget. If the Gadget already exists on the board it will overwrite the existing gadet
+	 * @return a board with the added gadget. If the Gadget already exists on the board it will overwrite the existing gadget
 	 */
 	public Board addGadget(Gadget gadget) {
 		
@@ -240,71 +245,13 @@ public class Board extends JPanel{
 			
 		}
 		
-	//	return graphics;
 	}
-	
-	
-	
-//	public void paint(Graphics g) {
-//		Timer timer = new Timer();
-//		
-//		BufferedImage output = new BufferedImage(this.WIDTH * L, this.HEIGHT * L, BufferedImage.TYPE_4BYTE_ABGR);
-//		Graphics graphics = (Graphics2D) output.getGraphics();
-//		
-//		graphics.setColor(Color.BLACK);
-//		graphics.fillRect(0, 0, WIDTH * L, HEIGHT * L);
-//		
-//		final ImageObserver NO_OBSERVER_NEEDED = null;
-//		
-//		final long FRAME_RATE = 100;
-//		TimerTask play = new TimerTask() {
-//			public void run() {
-//				graphics.setColor(Color.BLUE);
-//				for (Ball ball : balls) {
-//					final int xAnchor = (int) ball.getPosition().x() * L;
-//					final int yAnchor = (int) ball.getPosition().y() * L;
-//					
-//					
-//					graphics.drawImage(ball.generate(L), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
-//					ball.move(0.01);
-//					System.out.println(ball);
-//							
-//				}
-//				
-//				for (Gadget gadget : gadgets) {
-//					final int xAnchor = (int) gadget.position().x()*L;
-//					final int yAnchor = (int) gadget.position().y()*L;
-//					
-//					graphics.drawImage(gadget.generate(L), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
-//					
-//				}
-//        		
-//        	}
-//        };
-//		
-//        JFrame frame = new JFrame("this is a board with a ball");
-//        frame.add(new JLabel(new ImageIcon(output)));
-//        frame.pack();
-//        frame.setVisible(true);
-//        timer.schedule(play, 0, FRAME_RATE);
-//	}
-	
-	
-//	public void draw() {
-//		JFrame frame = new JFrame("this is a board with a ball");
-//		Ball toPlay = new Ball(new Vect(10,10), new Vect(0,1), 0.5);
-//	    Board toDraw = new Board();
-//	    toDraw.addBall(toPlay);
-//	     
-//	    frame.add(new JLabel(new ImageIcon(toDraw.generate())));
-// 		frame.pack();
-// 		frame.setVisible(true);
-//	     
-//	    Timer timer = new Timer();
-//	        
-//	    final long FRAME_RATE = 1000;
-//	}
-	
+
+	/**
+	 * Will move all balls and gadgets on the board to their new positions/stats after all moves/collisions that would occur
+	 * within time have occurred.  
+	 * @param time length of time in seconds the board should be "played"
+	 */
 	public void play(double time) {
 		for (int i = 0; i < this.balls.size(); i++) {
 			moveOneBall(balls.get(i), time);
@@ -317,10 +264,8 @@ public class Board extends JPanel{
 		Gadget nextGadget = NO_COLLISION;
 		
 		for (Gadget gadget : this.gadgets) {
-			//TODO:System.out.println(gadget);
 			if (gadget.collisionTime(ball) < collisionTime) {
 				collisionTime = gadget.collisionTime(ball);
-				//TODO:System.out.println(gadget +" "+ collisionTime);
 				nextGadget = gadget;
 			}
 		}
@@ -334,7 +279,6 @@ public class Board extends JPanel{
 		}
 		
 		if (collisionTime <= time && nextGadget != NO_COLLISION) {
-			//TODO: If two objects are stuck to each other the ball will not move. 
 			//TODO: A ball will bounce off a square bumper or line if it goes right next to it parallel to a side
 			ball.move(collisionTime);
 			Ball newBall = nextGadget.reflectBall(ball);
@@ -346,47 +290,6 @@ public class Board extends JPanel{
 		}
 	}
 
-	
-//	public class TestPane extends JPanel {
-//		private final int FRAME_RATE = 1000;
-//		private Board board;
-//		private final TimerTask play = new TimerTask() {
-//        	public void run() {
-//        		board.play(FRAME_RATE);
-//        		repaint();
-//        		
-//        	}
-//        };
-//		public TestPane(Board board) {
-//			this.board = board;
-//			Timer timer = new Timer();
-//			timer.schedule(play, 0, (long) FRAME_RATE);
-//		}
-//		
-//	}
-	
-//	public static void main(String[] args) {
-//		//TODO How to refresh an image?
-//        JFrame frame = new JFrame("this is a board with a ball");
-//        Board toDraw = new Board();
-//        Ball toPlay = new Ball(new Vect(10,10), new Vect(0,1), 0.5);
-//        toDraw.addBall(toPlay);
-//        
-//        frame.add(toDraw);
-// 		frame.pack();
-// 		frame.setVisible(true);
-// 		
-// 		Timer timer = new Timer();
-// 		final long FRAME_RATE = 1000;
-//		TimerTask play = new TimerTask() {
-//			public void run() {
-//				toDraw.play(1);
-//				toDraw.repaint();
-//			}
-//		};
-// 		timer.schedule(play, 0, (long) FRAME_RATE);
-//        
-//    }
 }
 
 

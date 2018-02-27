@@ -45,9 +45,9 @@ public class SquareBumper implements Gadget {
 		this.yAnchor = -y;
 		
 		//Bounding walls
-		Wall top = new Wall(name + " top", x, -y, x + 1, -y);
+		Wall top = new Wall(name + " top", x, - y, x + 1, -y);
 		Wall bottom = new Wall(name + " bottom", x, -y-1, x+1, -y-1);
-		Wall left = new Wall(name + " left", x, -y, x, -y-1);
+		Wall left = new Wall(name + " left", x, - y, x, -y-1);
 		Wall right = new Wall(name + " right", x+1, -y, x+1, -y-1);
 		
 		this.walls = new ArrayList<Wall>(Arrays.asList(top, bottom, left, right));

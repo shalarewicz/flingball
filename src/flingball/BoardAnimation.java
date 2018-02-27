@@ -17,7 +17,8 @@ import physics.Vect;
 
 public class BoardAnimation {
 	
-	private Board board1;
+	private final long FRAME_RATE = 5;
+	private final double PLAY_RATE = 0.005;
 	/*
 	 * TODO: AF()
 	 * TODO: Rep Invariant
@@ -28,26 +29,9 @@ public class BoardAnimation {
 		// TODO
 	}
 	
-	    public static void main(String[] args) {
-	    	Board toDraw = new Board();
-	    	//TODO Ball appears on row above bumpers despite having same y position. 
-	    	Ball toPlay = new Ball(new Vect(4.5,5.5), new Vect(-1,2), 0.5);
-	    	//Ball toPlay = new Ball(new Vect(4.5, 5.5), new Vect(0,-0.7), 0.5);
-	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
-	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
-	        toDraw.addBall(toPlay);
-	        toDraw = toDraw.addGadget(squareBumper);
-	        toDraw = toDraw.addGadget(circleBumper);
-	        System.out.println("BoardAnimation 40: " + toDraw.getGadgets());
-
-	        
-	        new BoardAnimation(toDraw);
-	    }
 
 	    public BoardAnimation(Board board) {
-	    	this.board1 = board;
 	        EventQueue.invokeLater(new Runnable() {
-	            private Board board = board1;
 
 				@Override
 	            public void run() {
@@ -57,9 +41,9 @@ public class BoardAnimation {
 	                    e.printStackTrace();
 	                }
 
-	                JFrame frame = new JFrame("Testing");
+	                JFrame frame = new JFrame("Flingball");
 	                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	                frame.add(new TestPane(this.board));
+	                frame.add(new TestPane(board));
 	                frame.pack();
 	                frame.setLocationRelativeTo(null);
 	                frame.setVisible(true);
@@ -70,25 +54,28 @@ public class BoardAnimation {
 
 	    public class TestPane extends JPanel {
 
-	        private Board board;
+			private static final long serialVersionUID = 1L;
+			private Board board;
+			private final int L;
 
 	        public TestPane(Board board) {
 	        	this.board= board;
+	        	this.L = board.L;
 	            Timer timer = new Timer();
 	            TimerTask play = new TimerTask() {
 //	                @Override
 	                public void run() {
-	                    board.play(1);
+	                    board.play(PLAY_RATE);
 	                    repaint();
 	                }
 	            };
-	            timer.schedule(play, 0, 1);//TODO Change frame rate for speed if needed
+	            timer.schedule(play, 0, FRAME_RATE);
 	        }
 
 
 	        @Override
 	        public Dimension getPreferredSize() {
-	            return new Dimension(this.board.getHeight() * 20, this.board.getWidth() * 20);
+	            return new Dimension(this.board.getHeight() * this.L, this.board.getWidth() * this.L);
 	        }
 
 	        @Override
@@ -96,31 +83,31 @@ public class BoardAnimation {
 	            super.paintComponent(graphics);
 	            Graphics2D g2d = (Graphics2D) graphics.create();
 	            graphics.setColor(Color.BLACK);
-	    		graphics.fillRect(0, 0, this.board.getHeight() * 20, this.board.getWidth() * 20);
+	    		graphics.fillRect(0, 0, this.board.getHeight() * this.L, this.board.getWidth() * this.L);
 	    		
 	    		final ImageObserver NO_OBSERVER_NEEDED = null;
 	    		
 	    		graphics.setColor(Color.BLUE);
 	    		for (Ball ball : this.board.getBalls()) {
-	    			final Vect anchor = ball.getAnchor().times(20);
+	    			final Vect anchor = ball.getAnchor().times(this.L);
 	    			
 	    			
-	    			g2d.drawImage(ball.generate(20), (int) anchor.x(), (int) anchor.y(), NO_OBSERVER_NEEDED);
+	    			g2d.drawImage(ball.generate(this.L), (int) anchor.x(), (int) anchor.y(), NO_OBSERVER_NEEDED);
 	    					
 	    		}
 	    		
 	    		for (Gadget gadget : this.board.getGadgets()) {
-	    			final int xAnchor = (int) gadget.position().x()*20;
-	    			final int yAnchor = (int) gadget.position().y()*20;
+	    			final int xAnchor = (int) gadget.position().x()*this.L;
+	    			final int yAnchor = (int) gadget.position().y()*this.L;
 	    			
-	    			g2d.drawImage(gadget.generate(20), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
+	    			g2d.drawImage(gadget.generate(this.L), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
 	    			
 	    		}
 	    		
 	    		for (int i = 1; i <= 20; i++) {
 	    			g2d.setColor(Color.GREEN);
-	    			g2d.drawLine(0, i*20, 20 * 20, i*20);
-	    			g2d.drawLine(i*20, 0, i*20, 20 * 20);
+	    			g2d.drawLine(0, i*this.L, this.L * this.L, i*this.L);
+	    			g2d.drawLine(i*this.L, 0, i*this.L, this.L * this.L);
 	    			
 	    			
 	    		}
@@ -132,4 +119,17 @@ public class BoardAnimation {
 
 	    }
 
+	    public static void main(String[] args) {
+	    	Board toDraw = new Board();
+	    	Ball toPlay = new Ball(new Vect(4.5,5.5), new Vect(-100,143), 0.5);
+	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
+	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
+	    	toDraw.addBall(toPlay);
+	    	toDraw = toDraw.addGadget(squareBumper);
+	    	toDraw = toDraw.addGadget(circleBumper);
+	    	System.out.println("BoardAnimation 40: " + toDraw.getGadgets());
+	    	
+	    	
+	    	new BoardAnimation(toDraw);
+	    }
 	}
