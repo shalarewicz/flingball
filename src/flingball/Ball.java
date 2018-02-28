@@ -6,6 +6,9 @@ package flingball;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Arrays;
 
 import physics.*;
 
@@ -16,6 +19,7 @@ public class Ball {
 	
 	private Vect boardCenter, cartesianCenter, boardVelocity, cartesianVelocity, anchor;
 	private double radius;
+	
 	
 	/*
 	 * AF(position, velocity, radius) ::= A ball with radius r, center = position, moving with velocity velocity. )
@@ -43,8 +47,11 @@ public class Ball {
 		this.boardCenter = center;
 		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
 		this.anchor = new Vect(center.x() - radius, center.y() - radius);
+		
+		//TODO: Remove if not needed since using BigDecimal
 		this.boardVelocity = new Vect(velocity.x(), velocity.y());
-		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());//TODO: MAKE THIS POSITIVE IF IT CAUSES PROBLEMS
+		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
+		
 		this.radius = radius;
 		checkRep();
 	}
@@ -86,10 +93,19 @@ public class Ball {
 	//TODO Ball should be mutable? otherwise need to remove and add balls to the board each time they change
 	public void move(double time) {
 		// distance = position + velocity * t
-		Vect newCenter = this.cartesianCenter.plus(this.cartesianVelocity.times(time));
-		this.cartesianCenter = newCenter;
-		this.boardCenter = getBoardCenterFromCartesianCenter(newCenter);
-		this.anchor = getAnchorFromCartesianCenter(newCenter);
+		Vect newCenter = this.cartesianVelocity.times(time).plus(this.cartesianCenter);
+		
+		//Round Decimal to avoid floating point math errors after ~15 decimal places
+		DecimalFormat df = new DecimalFormat("#.###########");
+		df.setRoundingMode(RoundingMode.HALF_EVEN);
+		double newXCenter = Double.parseDouble(df.format(newCenter.x()));
+		double newYCenter = Double.parseDouble(df.format(newCenter.y()));
+		
+		Vect roundedCenter = new Vect(newXCenter, newYCenter);
+		
+		this.cartesianCenter = roundedCenter;
+		this.boardCenter = getBoardCenterFromCartesianCenter(roundedCenter);
+		this.anchor = getAnchorFromCartesianCenter(roundedCenter);
 	}
 	
 	/**
@@ -107,6 +123,7 @@ public class Ball {
 		// delta_v = at
 		// v_new_f = v_old * (1 - mu*delta_t - mu2*|v_old|*delta_t) 
 		
+		//TODO Account for floating point math precision
 		double v_initial = this.cartesianVelocity.length();
 		
 		//Change in velocity due to gravity = gravity * time

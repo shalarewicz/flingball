@@ -35,9 +35,19 @@ public class BallTest {
 	}
 	
 	@Test
-	public void testgetAnchor() {
+	public void testGetAnchor() {
 		final Ball test = STATIONARY_BALL;
 		final Vect expected = new Vect(0.5, 0.5);
 		assertEquals(expected, test.getAnchor());
+	}
+	
+	@Test
+	public void testFloatingPointMath() {
+		System.out.println(0.005 * 189);
+		Vect center = new Vect(1.0878412439507175,-7.068249223054875);
+		Vect velocity = new Vect(-166.33083147691423,-52.75466330286231);
+		double time = 0.0035341688533091146;
+		System.out.println(velocity.times(time));
+		System.out.println(velocity.times(time).plus(center));
 	}
 }

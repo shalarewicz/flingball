@@ -121,13 +121,12 @@ public class BoardAnimation {
 
 	    public static void main(String[] args) {
 	    	Board toDraw = new Board();
-	    	Ball toPlay = new Ball(new Vect(4.5,5.5), new Vect(-100,143), 0.5);
+	    	Ball toPlay = new Ball(new Vect(4.5,4.5), new Vect(-189,0), 0.5);
 	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
 	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
 	    	toDraw.addBall(toPlay);
 	    	toDraw = toDraw.addGadget(squareBumper);
 	    	toDraw = toDraw.addGadget(circleBumper);
-	    	System.out.println("BoardAnimation 40: " + toDraw.getGadgets());
 	    	
 	    	
 	    	new BoardAnimation(toDraw);

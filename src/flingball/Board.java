@@ -97,15 +97,13 @@ public class Board extends JPanel{
 		}
 		
 		for (Ball ball : balls) {
-			//TODO floating point math is screwing 
-//			final double radius = ball.getRadius();
-//			final double cx = ball.getBoardCenter().x();
-//			final double cy = ball.getBoardCenter().y();
-//			System.out.println(cx - radius);
-//			assert cx - radius >= 0;
-//			assert cx + radius <= WIDTH;
-//			assert cy - radius >= 0;
-//			assert cy + radius <= HEIGHT;
+			final double radius = ball.getRadius();
+			final double cx = ball.getBoardCenter().x();
+			final double cy = ball.getBoardCenter().y();
+			assert cx - radius >= 0;
+			assert cx + radius <= WIDTH;
+			assert cy - radius >= 0;
+			assert cy + radius <= HEIGHT;
 			
 		}
 	}
@@ -281,10 +279,13 @@ public class Board extends JPanel{
 		if (collisionTime <= time && nextGadget != NO_COLLISION) {
 			//TODO: A ball will bounce off a square bumper or line if it goes right next to it parallel to a side
 			ball.move(collisionTime);
+			//System.out.println("Moved to collision point: " + ball.getBoardCenter());
 			Ball newBall = nextGadget.reflectBall(ball);
+			//System.out.println("Collided: " + newBall.getBoardCenter());
 			this.removeBall(ball);
 			this.addBall(newBall);
 			moveOneBall(newBall, time - collisionTime);
+			//System.out.println("Moved remainder of frame: " + newBall.getBoardCenter());
 		} else {		
 			ball.move(time);
 		}
