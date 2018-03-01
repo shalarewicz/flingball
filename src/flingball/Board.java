@@ -57,7 +57,7 @@ public class Board extends JPanel{
 	private final List<Gadget> WALLS = new ArrayList<Gadget>(Arrays.asList(TOP, BOTTOM, LEFT, RIGHT));
 	private List<Gadget> gadgets = new ArrayList<Gadget>();
 	private List<Ball> balls = new ArrayList<Ball>();
-	private Map<Gadget, Gadget> triggers;
+	private Map<Gadget, Gadget> triggers = new HashMap<Gadget, Gadget>();
 	
 	//TODO Allow user to set this field
 	final int L = 40;
