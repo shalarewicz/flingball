@@ -1,12 +1,15 @@
 package flingball;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
 import edu.mit.eecs.parserlib.ParseTree;
 import edu.mit.eecs.parserlib.Parser;
 import edu.mit.eecs.parserlib.UnableToParseException;
+import edu.mit.eecs.parserlib.Visualizer;
 import flingball.TriangleBumper.Orientation;
 import physics.Vect;
 
@@ -14,11 +17,22 @@ public class BoardParser {
 
 
 	public static void main(final String[] args) throws UnableToParseException{
-		final String input = "board name=test gravity=1.0 \n#This is a comment\n#This is a nother comment\nball name = test x=1.0 y = 1.0 xVelocity =1.0 yVelocity = 2.0\nsquareBumper name=testbump x=1 y=4\n";
-		//final String input = "board name= test\nball name = test x=1.0 y = 1.0 xVelocity =1.0 yVelocity = 2.0";
-		System.out.println(input);
-        final Board expression = BoardParser.parse(input);
-        System.out.println(expression);
+		File test = new File("src/flingball/sampleBoard.fb");
+		try {
+			BufferedReader testReader = new BufferedReader(new FileReader(test));
+			String result = "";
+			String next = testReader.readLine();
+			while (next != null) {
+				result = result + next + "\n";
+				next = testReader.readLine();
+			}
+			System.out.println(result);
+			final Board expression = BoardParser.parse(result);
+			System.out.println("The constructed board is " + expression);
+			testReader.close();
+		} catch (Exception e) {
+			System.out.println(e);
+		} 
 	}
 	
 	private enum BoardGrammar {
@@ -46,7 +60,10 @@ public class BoardParser {
 		final ParseTree<BoardGrammar> parseTree = parser.parse(input);
 		
 		System.out.println("Parse Tree: " + parseTree);
-		
+		 // display the parse tree in a web browser, for debugging only
+        Visualizer.showInBrowser(parseTree);
+
+        // make an AST from the parse tree
 		final Board board = makeAbstractSyntaxTree(parseTree);
 		return board;
 	}
