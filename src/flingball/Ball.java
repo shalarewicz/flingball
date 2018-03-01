@@ -18,7 +18,9 @@ import physics.*;
 public class Ball {
 	
 	private Vect boardCenter, cartesianCenter, boardVelocity, cartesianVelocity, anchor;
-	private double radius;
+	// default diameter is 0.5L
+	private double radius = 0.5;
+	private String name;
 	
 	
 	/*
@@ -44,6 +46,7 @@ public class Ball {
 	 * @param radius radius of the ball. Must be greater than zero
 	 */
 	public Ball(Vect center, Vect velocity, double radius) {
+		this.name = "Test ball";
 		this.boardCenter = center;
 		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
 		this.anchor = new Vect(center.x() - radius, center.y() - radius);
@@ -53,6 +56,19 @@ public class Ball {
 		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
 		
 		this.radius = radius;
+		checkRep();
+	}
+	
+	public Ball(String name, Vect center, Vect velocity) {
+		this.name = name;
+		this.boardCenter = center;
+		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
+		this.anchor = new Vect(center.x() - radius, center.y() - radius);
+		
+		//TODO: Remove if not needed since using BigDecimal
+		this.boardVelocity = new Vect(velocity.x(), velocity.y());
+		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
+		
 		checkRep();
 	}
 	

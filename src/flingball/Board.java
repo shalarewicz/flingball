@@ -35,13 +35,24 @@ public class Board extends JPanel{
 	
 	//TODO What is this?
 	private static final long serialVersionUID = 1L;
+
+	public static final double GRAVITY = 25.0;
+
+	public static final double FRICTION_1 = 0.025;
+
+	public static final double FRICTION_2 = 0.025;
 	
+	
+	private final String NAME;
 	private final int HEIGHT = 20;
 	private final int WIDTH = 20;
 	private final Wall TOP = new Wall ("TOP", 0, 0, WIDTH, 0);
 	private final Wall BOTTOM = new Wall ("BOTTOM", 0, -HEIGHT, WIDTH, -HEIGHT);
 	private final Wall LEFT = new Wall ("LEFT", 0, 0, 0, -HEIGHT);
 	private final Wall RIGHT = new Wall ("RIGHT", WIDTH, 0, WIDTH, -HEIGHT);
+	private double gravity = this.GRAVITY;
+	private double friction1 = this.FRICTION_1;
+	private double friction2 = this.FRICTION_2;
 	
 	private final List<Gadget> WALLS = new ArrayList<Gadget>(Arrays.asList(TOP, BOTTOM, LEFT, RIGHT));
 	private List<Gadget> gadgets = new ArrayList<Gadget>();
@@ -52,10 +63,15 @@ public class Board extends JPanel{
 	final int L = 40;
 	
 	public Board() {
+		this.NAME = "TEST"; //TODO Update or remove constructor
 		this.gadgets = new ArrayList<Gadget>();
 		this.triggers = new HashMap<Gadget,Gadget>();
 		this.balls = new ArrayList<Ball>();
 		checkRep();
+	}
+	
+	public Board(String name) {
+		this.NAME = name;
 	}
 	
 	// This can used when creating custom sized boards
@@ -75,11 +91,20 @@ public class Board extends JPanel{
 //	}
 
 	private Board(List<Gadget> newGadgets, Map<Gadget, Gadget> newTriggers, List<Ball> balls) {
+		this.NAME = "TEST"; //TODO Update or remove constructor
 		this.gadgets = newGadgets;
 		this.triggers = newTriggers;
 		this.balls = balls;
 		checkRep();
 	
+	}
+
+	public Board(String name, double gravity, double friction1, double friction2) {
+		this.NAME = name;
+		this.gravity = gravity;
+		this.friction1 = friction1;
+		this.friction2 = friction2;
+		checkRep();
 	}
 
 	private void checkRep() {
@@ -108,7 +133,9 @@ public class Board extends JPanel{
 		}
 	}
 	
-	
+	public String getName() {
+		return this.NAME;
+	}
 	/**
 	 * 
 	 * @return height in L units of the board
