@@ -1,10 +1,19 @@
 board name=test gravity=1.0 
+
 #This is a comment
 #This is a nother comment
-ball name = test x=1.0 y = 1.0 xVelocity =1.0 yVelocity = 2.0
-squareBumper name=testbump x=1 y=4
-circleBumper name = testCircle x = 1 y = 4
+
+ball name = test x=1.0 y = 4 xVelocity =-165 yVelocity = 65
+squareBumper name=testbump x=15 y=4
+
+circleBumper name = testCircle x = 10 y = 4
 triangleBumper name=testTriangle x=4 y=7
-triangleBumper name=testTriangle x=3 y=8 orientation=0
+triangleBumper name=testTriangle2 x=4 y=14 orientation=0
+
 #This ball will go fast
-ball name=test2 x=1 y=3 xVelocity=4 yVelocity=7
+ball name=test2 x=1 y=3 xVelocity=180 yVelocity=50
+
+
+
+
+

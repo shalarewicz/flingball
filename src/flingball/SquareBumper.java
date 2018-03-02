@@ -9,13 +9,14 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import physics.Physics;
 import physics.Vect;
 
 public class SquareBumper implements Gadget {
@@ -29,14 +30,24 @@ public class SquareBumper implements Gadget {
 	
 	private final List<Wall> walls;
 	/*
-	 * TODO: AF()
-	 * TODO: Rep Invariant
-	 * 	position >= 0
-	 * TODO: Safety from rep exposure
+	 * AF(name, xAnchor, yAnchor) ::= A square bumper at (xAnchor, yAnchor) on a flingBall board. 
+	 * Rep Invariant
+	 * 	walls.size() == 4
+	 *  for each wall in walls each of its end points are shared by two unique walls
+	 * Safety from rep exposure
+	 * 	only final or immutable fields returned
 	 */
 	
 	private void checkRep() {
-		// TODO
+		assert walls.size() == 4;
+		Set<Vect> endPoints = new HashSet<Vect>();
+		for (Wall wall : walls) {
+			Vect start = wall.start();
+			Vect end = wall.end();
+			endPoints.add(start);
+			endPoints.add(end);
+		}
+		assert endPoints.size() == 4;
 	}
 	
 	public SquareBumper(String name, int x, int y) {
@@ -45,12 +56,13 @@ public class SquareBumper implements Gadget {
 		this.yAnchor = -y;
 		
 		//Bounding walls
-		Wall top = new Wall(name + " top", x, - y, x + 1, -y);
-		Wall bottom = new Wall(name + " bottom", x, -y-1, x+1, -y-1);
-		Wall left = new Wall(name + " left", x, - y, x, -y-1);
-		Wall right = new Wall(name + " right", x+1, -y, x+1, -y-1);
+		final Wall top = new Wall(name + " top", x, - y, x + 1, -y);
+		final Wall bottom = new Wall(name + " bottom", x, -y-1, x+1, -y-1);
+		final Wall left = new Wall(name + " left", x, - y, x, -y-1);
+		final Wall right = new Wall(name + " right", x+1, -y, x+1, -y-1);
 		
 		this.walls = new ArrayList<Wall>(Arrays.asList(top, bottom, left, right));
+		this.checkRep();
 		
 	}
 
@@ -62,6 +74,16 @@ public class SquareBumper implements Gadget {
 	@Override
 	public String name() {
 		return this.name;
+	}
+	
+	@Override 
+	public int height() {
+		return 1;
+	}
+	
+	@Override 
+	public int width() {
+		return 1;
 	}
 
 	@Override
@@ -76,8 +98,8 @@ public class SquareBumper implements Gadget {
 
 	@Override
 	public int priority() {
-		// TODO Auto-generated method stub
-		return 0;
+		//TODO
+		throw new RuntimeException("Not Yet Implemented");
 	}
 	
 	@Override
@@ -89,11 +111,6 @@ public class SquareBumper implements Gadget {
 		return collisionTime;
 	}
 
-	@Override
-	public void setTrigger() {
-		// TODO not supported throw an exception?
-
-	}
 
 	@Override
 	public String getTrigger() {
@@ -103,12 +120,14 @@ public class SquareBumper implements Gadget {
 	@Override
 	public void setAction() {
 		// TODO Auto-generated method stub
+		throw new RuntimeException("Not Yet Implemented");
 
 	}
 
 	@Override
 	public void action() {
 		// TODO Auto-generated method stub
+		throw new RuntimeException("Not Yet Implemented");
 
 	}
 
@@ -133,7 +152,7 @@ public class SquareBumper implements Gadget {
 				return wall.reflectBall(ball);
 			}
 		}
-		
+		 
 		throw new RuntimeException("Should never get here. Ball did not collide with SquareBumper");
 	}
 	

@@ -4,24 +4,32 @@
  */
 package flingball;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import physics.Vect;
 
 public class TriangleBumper implements Gadget {
 	/*
-	 * TODO: AF()
-	 * TODO: Rep Invariant
-	 * TODO: Safety from rep exposure
+	 * AF(x, y , orientation) - Triangle pumper with anchor x, y and orientation 
+	 * Rep Invariant
+	 * walls.size() == 3
+	 * for each endpoint of a wall there exists only one other wall with that endpoint
+	 * Safety from rep exposure
+	 * 		only final or immutable fields returend. 
 	 */
 	
 	private final int x, y;
-	private final Orientation orientation;
+	private Orientation orientation = Orientation.ZERO;
 	private final List<Wall> walls;
 	private String name;
+	private String trigger = Gadget.NO_TRIGGER;
 	
 	private double reflectionCoefficient;
 	
@@ -30,7 +38,27 @@ public class TriangleBumper implements Gadget {
 	}
 
 	private void checkRep() {
-		// TODO
+		assert this.walls.size() == 3;
+		Set<Vect> endPoints = new HashSet<Vect>();
+		for (Wall wall : walls) {
+			Vect start = wall.start();
+			Vect end = wall.end();
+			endPoints.add(start);
+			endPoints.add(end);
+		}
+		assert endPoints.size() == 3;
+	}
+	
+	public TriangleBumper(String name, int x, int y) {
+		this.x = x;
+		this.y = -y;
+		this.name = name;
+		
+		final Wall side1 = new Wall(name + " side1", x, -y, x+1, -y);
+		final Wall side2 = new Wall(name + " side2", x+1, -y, x+1, -y-1);
+		final Wall hypotenuse = new Wall(name + " hypotenuse", x, -y, x+1, -y-1);
+		walls = new ArrayList<Wall>(Arrays.asList(side1, side2, hypotenuse));
+		checkRep();
 	}
 	
 	public TriangleBumper(String name, int x, int y, Orientation orientation) {
@@ -88,6 +116,16 @@ public class TriangleBumper implements Gadget {
 	public String name() {
 		return this.name;
 	}
+	
+	@Override 
+	public int height() {
+		return 1;
+	}
+	
+	@Override 
+	public int width() {
+		return 1;
+	}
 
 	@Override
 	public double getReflectionCoefficient() {
@@ -110,20 +148,14 @@ public class TriangleBumper implements Gadget {
 
 	@Override
 	public int priority() {
-		// TODO Auto-generated method stub
-		return 0;
+		// TODO 
+		throw new RuntimeException("Not yet implemeted");
 	}
 
-	@Override
-	public void setTrigger() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public String getTrigger() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.trigger;
 	}
 
 	@Override
@@ -140,8 +172,40 @@ public class TriangleBumper implements Gadget {
 
 	@Override
 	public BufferedImage generate(int L) {
-		// TODO Auto-generated method stub
-		return null;
+		BufferedImage output = new BufferedImage(L, L, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics2D graphics = (Graphics2D) output.getGraphics();
+        
+        graphics.setColor(Color.GREEN);
+        switch (this.orientation) {
+        case ZERO:{
+        	final int[] xPoints = {0, L, 0};
+        	final int[] yPoints = {0, 0, L};
+        	graphics.fillPolygon(xPoints, yPoints, 3);
+        	return output;
+        }
+        case NINETY:{
+        	final int[] xPoints = {0, L, L};
+        	final int[] yPoints = {0, 0, L};
+        	graphics.fillPolygon(xPoints, yPoints, 3);
+        	return output;
+        }
+        case ONEEIGHTY:{
+        	final int[] xPoints = {L, L, 0};
+        	final int[] yPoints = {0, L, L};
+        	graphics.fillPolygon(xPoints, yPoints, 3);
+        	return output;
+        }
+        case TWOSEVENTY:{
+        	final int[] xPoints = {0, L, 0};
+        	final int[] yPoints = {0, L, L};
+        	graphics.fillPolygon(xPoints, yPoints, 3);
+        	return output;
+        }
+        default:
+        	throw new RuntimeException("Should never get here. Cannot generate triangle bunper");
+        
+        }
+        
 	}
 
 	@Override
@@ -153,6 +217,11 @@ public class TriangleBumper implements Gadget {
 			}
 		}
 		
-		throw new RuntimeException("Should never get here. Ball did not collide with SquareBumper");
+		throw new RuntimeException("Should never get here. Ball did not collide with Triangle Bumper");
+	}
+	
+	@Override
+	public String toString() {
+		return "{Triangle Bumper[" + this.name + " " + this.position()+"]}";
 	}
 }

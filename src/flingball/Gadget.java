@@ -14,7 +14,7 @@ import physics.*;
 public interface Gadget {
 	
 	/**
-	 * @return The anchor position of the gadget as a vector <x, y>
+	 * @return The anchor position of the gadget on the board
 	 */
 	public Vect position();
 	
@@ -24,6 +24,17 @@ public interface Gadget {
 	 */
 	public String name();
 	
+	/**
+	 * 
+	 * @return The height of the object in L units
+	 */
+	public int height();
+	
+	/**
+	 * 
+	 * @return The width of the object in L units
+	 */
+	public int width();
 	/**
 	 * 
 	 * @return The coefficient of reflection of the gadget
@@ -55,16 +66,10 @@ public interface Gadget {
 	
 	
 	/**
-	 * Sets a trigger for the gadget
-	 */
-	public void setTrigger();
-	
-	/**
 	 * 
 	 * @param ball Ball to be reflected
 	 * @return a new ball which has reflected off the Gadget
 	 * 
-	 * TODO: Account for reversed coordinates. in Cartesian flip y coordinate
 	 */
 	public Ball reflectBall(Ball ball);
 	

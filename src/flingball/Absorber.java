@@ -9,6 +9,9 @@ import java.awt.image.BufferedImage;
 import physics.Vect;
 
 public class Absorber implements Gadget {
+	private int height;
+	private int width;
+
 	/*
 	 * TODO: AF()
 	 * TODO: Rep Invariant
@@ -29,6 +32,16 @@ public class Absorber implements Gadget {
 	public String name() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override 
+	public int height() {
+		return this.height;
+	}
+	
+	@Override 
+	public int width() {
+		return this.width;
 	}
 
 	@Override
@@ -54,8 +67,11 @@ public class Absorber implements Gadget {
 		return 0;
 	}
 
-	@Override
-	public void setTrigger() {
+	/**
+	 * 
+	 * @param trigger
+	 */
+	public void setTrigger(String trigger) {
 		// TODO Auto-generated method stub
 
 	}

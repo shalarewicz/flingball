@@ -12,8 +12,10 @@ import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
@@ -27,6 +29,7 @@ public class Board extends JPanel{
 	 * 		No two gadgets have same anchor
 	 * 		All gadgets are entirely on the board
 	 * 		All balls on board
+	 * 		No two gadgets or balls have the same name
 	 * 
 	 * TODO: Safety from rep exposure
 	 */
@@ -109,16 +112,20 @@ public class Board extends JPanel{
 
 	private void checkRep() {
 		
-		for (int i = 0; i < gadgets.size() - 2; i++) {
+		Set<Vect> anchors = new HashSet<Vect>();
+		Set<String> names = new HashSet<String>();
+		
+		for (Gadget gadget : gadgets) {
+			assert names.add(gadget.name());
+			assert anchors.add(gadget.position());
+		}
+		
+		for (int i = 0; i < gadgets.size(); i++) {
 			Vect position = gadgets.get(i).position();
 			assert position.x() <= WIDTH - 1;
 			assert position.x() >= 0;
-			assert -position.y() <= HEIGHT - 1;
-			assert -position.y() >= 0;
-			for (int j = i + 1; j < gadgets.size() - 1; j++) {
-				assert position != gadgets.get(j).position();
-			}
-			
+			assert position.y() <= HEIGHT - 1;
+			assert position.y() >= 0;
 		}
 		
 		for (Ball ball : balls) {
@@ -176,7 +183,7 @@ public class Board extends JPanel{
 		
 		final String triggerName = gadget.getTrigger();
 		Map<Gadget, Gadget> newTriggers = new HashMap<Gadget, Gadget>(triggers);
-		
+
 		if (!triggerName.equals(Gadget.NO_TRIGGER)) {
 			try {
 				final Gadget trigger = getGadget(triggerName);
@@ -305,17 +312,30 @@ public class Board extends JPanel{
 		
 		if (collisionTime <= time && nextGadget != NO_COLLISION) {
 			//TODO: A ball will bounce off a square bumper or line if it goes right next to it parallel to a side
-			ball.move(collisionTime);
+			//Ball movedBall = ball.move(collisionTime, this.gravity, this.friction1, this.friction2);
+			Ball movedBall = ball.move(collisionTime);
 			//System.out.println("Moved to collision point: " + ball.getBoardCenter());
-			Ball newBall = nextGadget.reflectBall(ball);
+			Ball newBall = nextGadget.reflectBall(movedBall);
 			//System.out.println("Collided: " + newBall.getBoardCenter());
 			this.removeBall(ball);
 			this.addBall(newBall);
 			moveOneBall(newBall, time - collisionTime);
 			//System.out.println("Moved remainder of frame: " + newBall.getBoardCenter());
-		} else {		
-			ball.move(time);
+		} else {	
+			//Ball newBall = ball.move(time, this.gravity, this.friction1, this.friction2);
+			Ball newBall = ball.move(time);
+			this.removeBall(ball);
+			this.addBall(newBall);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		result.append("{FLINGBALL BOARD:[" + this.NAME + ", ");
+		result.append("Balls:" + this.balls);
+		result.append("Gadgets:" + this.gadgets);
+		return result.toString();
 	}
 
 }

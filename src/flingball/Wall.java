@@ -84,12 +84,38 @@ public class Wall implements Gadget {
 		}
 		return new Vect((int) xAnchor, (int) yAnchor);
 	}
+	
+	/**
+	 * 
+	 * @return starting point of the wall
+	 */
+	Vect start() {
+		return new Vect(x1, y1);
+	}
+	
+	/**
+	 * 
+	 * @return end point of the wall
+	 */
+	Vect end() {
+		return new Vect(x2, y2);
+	}
 
 	@Override
 	public String name() {
 		return this.name;
 	}
 
+	@Override
+	public int height() {
+		return 0;
+	}
+	
+	@Override
+	public int width() {
+		return (int) Math.sqrt(Physics.distanceSquared(x1, y1, x2, y2));
+	}
+	
 	@Override
 	public double getReflectionCoefficient() {
 		return REFLECTION_COEFFICIENT;
@@ -116,11 +142,7 @@ public class Wall implements Gadget {
 		return 0;
 	}
 
-	@Override
-	public void setTrigger() {
-		// TODO Auto-generated method stub
 
-	}
 
 	@Override
 	public String getTrigger() {

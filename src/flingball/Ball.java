@@ -14,12 +14,12 @@ import physics.*;
 
 /**
  * An immutable class representing a ball for use on a flingball board. All balls must have radius > 0;
- */
+ */ 
 public class Ball {
 	
 	private Vect boardCenter, cartesianCenter, boardVelocity, cartesianVelocity, anchor;
 	// default diameter is 0.5L
-	private double radius = 0.5;
+	private double radius = 0.25;
 	private String name;
 	
 	
@@ -59,6 +59,12 @@ public class Ball {
 		checkRep();
 	}
 	
+	/**
+	 * Creates a new Ball for use on a flingBall board
+	 * @param name name of the ball
+	 * @param center center of the ball
+	 * @param velocity velocity of the ball
+	 */
 	public Ball(String name, Vect center, Vect velocity) {
 		this.name = name;
 		this.boardCenter = center;
@@ -68,6 +74,27 @@ public class Ball {
 		//TODO: Remove if not needed since using BigDecimal
 		this.boardVelocity = new Vect(velocity.x(), velocity.y());
 		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
+		
+		checkRep();
+	}
+	
+	/**
+	 * Creates a new Ball for use on a flingBall board
+	 * @param name name of the ball
+	 * @param center center of the ball
+	 * @param velocity velocity of the ball
+	 * @param radius radius of the ball. Must be greater than zero
+	 */
+	public Ball(String name, Vect center, Vect velocity, double radius) {
+		this.name = name;
+		this.boardCenter = center;
+		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
+		this.anchor = new Vect(center.x() - radius, center.y() - radius);
+		
+		//TODO: Remove if not needed since using BigDecimal
+		this.boardVelocity = new Vect(velocity.x(), velocity.y());
+		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
+		this.radius = radius;
 		
 		checkRep();
 	}
@@ -107,7 +134,7 @@ public class Ball {
 	 */
 	
 	//TODO Ball should be mutable? otherwise need to remove and add balls to the board each time they change
-	public void move(double time) {
+	public Ball move(double time) {
 		// distance = position + velocity * t
 		Vect newCenter = this.cartesianVelocity.times(time).plus(this.cartesianCenter);
 		
@@ -122,6 +149,7 @@ public class Ball {
 		this.cartesianCenter = roundedCenter;
 		this.boardCenter = getBoardCenterFromCartesianCenter(roundedCenter);
 		this.anchor = getAnchorFromCartesianCenter(roundedCenter);
+		return new Ball(this.name, getBoardCenterFromCartesianCenter(roundedCenter), this.boardVelocity, this.radius);
 	}
 	
 	/**
@@ -139,11 +167,15 @@ public class Ball {
 		// delta_v = at
 		// v_new_f = v_old * (1 - mu*delta_t - mu2*|v_old|*delta_t) 
 		
-		//TODO Account for floating point math precision
+		DecimalFormat df = new DecimalFormat("#.###########");
+		df.setRoundingMode(RoundingMode.HALF_EVEN);
+		
+		//TODO: Floating point math is messing this up
 		double v_initial = this.cartesianVelocity.length();
 		
 		//Change in velocity due to gravity = gravity * time
 		final Vect deltaVGravity = new Vect(Angle.DEG_270, gravity).times(time);
+		System.out.println("dv gravity = " + deltaVGravity);
 		
 		// Final velocity as a result of friction
 		double vFinalFriction = v_initial * (1 - mu*time - mu2 * time * Math.abs(v_initial));
@@ -151,17 +183,32 @@ public class Ball {
 		//Change in velocity due to friction = a_f * t (where a_f is acceleration due to friction)
 		Vect deltaVFriction = new Vect(this.cartesianVelocity.angle().plus(Angle.DEG_180), Math.abs(vFinalFriction - v_initial));
 		
+		System.out.println("dv friction: " + deltaVFriction);
+		
 		// Net change in velocity = a*t
 		Vect deltaV = deltaVGravity.plus(deltaVFriction);
+		System.out.println("dv = " + deltaV);
 		
 		Vect newVelocity = this.cartesianVelocity.plus(deltaV);
+		
+		System.out.println("newV = " + newVelocity);
+		
+		double newVX = Double.parseDouble(df.format(newVelocity.x()));
+		double newVY = Double.parseDouble(df.format(newVelocity.y()));
+		
+		Vect roundedVelocity = new Vect(newVX, newVY);
 		
 		// displacement = v_i*t + a*t*t = v_i*t + deltaV * t
 		Vect displacement = this.cartesianVelocity.times(time).plus(deltaV.times(time));
 		
-		Vect newBoardCenter = getBoardCenterFromCartesianCenter(this.cartesianCenter.plus(displacement));
+		Vect newCartesianCenter = this.cartesianCenter.plus(displacement);
+		double newCX = Double.parseDouble(df.format(newCartesianCenter.x()));
+		double newCY = Double.parseDouble(df.format(newCartesianCenter.y()));
+		Vect correctedCartesianCenter = new Vect(newCX, newCY);
 		
-		return new Ball(newBoardCenter, newVelocity, this.radius);
+		Vect newBoardCenter = getBoardCenterFromCartesianCenter(correctedCartesianCenter);
+		
+		return new Ball(this.name, newBoardCenter, getBoardCenterFromCartesianCenter(roundedVelocity), this.radius);
 		
 	}
 	

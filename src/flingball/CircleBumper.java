@@ -9,14 +9,15 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import physics.Circle;
-import physics.Physics;
 import physics.Vect;
 
 public class CircleBumper implements Gadget {
 	/*
-	 * TODO: AF(x, y, name) ::= A circle with center x, y and radius r named name
-	 * TODO: Rep Invariant
-	 * TODO: Safety from rep exposure
+	 * AF(x, y, name) ::= A circle with center x, y and radius r named name
+	 * Rep Invariant
+	 * 		true
+	 *  Safety from rep exposure
+	 * 		Only final or immutable fields are returned. 
 	 */
 
 	private final String trigger = NO_TRIGGER;
@@ -47,6 +48,16 @@ public class CircleBumper implements Gadget {
 	public String name() {
 		return this.name;
 	}
+	
+	@Override 
+	public int height() {
+		return 1;
+	}
+	
+	@Override 
+	public int width() {
+		return 1;
+	}
 
 	@Override
 	public double getReflectionCoefficient() {
@@ -66,15 +77,10 @@ public class CircleBumper implements Gadget {
 
 	@Override
 	public int priority() {
-		// TODO Auto-generated method stub
-		return 0;
+		//TODO
+		throw new RuntimeException("Not Yet Implemented");
 	}
 
-	@Override
-	public void setTrigger() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public String getTrigger() {

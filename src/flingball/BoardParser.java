@@ -22,14 +22,17 @@ public class BoardParser {
 			BufferedReader testReader = new BufferedReader(new FileReader(test));
 			String result = "";
 			String next = testReader.readLine();
+			//TODO do this better
 			while (next != null) {
 				result = result + next + "\n";
 				next = testReader.readLine();
 			}
-			System.out.println(result);
-			final Board expression = BoardParser.parse(result);
-			System.out.println("The constructed board is " + expression);
-			testReader.close();
+			System.out.println("Input: \n" + result);
+			final Board board = BoardParser.parse(result);
+			System.out.println("The constructed board is " + board);
+			testReader.close(); 
+			new BoardAnimation(board);
+			
 		} catch (Exception e) {
 			System.out.println(e);
 		} 
@@ -59,11 +62,12 @@ public class BoardParser {
 	public static Board parse(final String input) throws UnableToParseException{
 		final ParseTree<BoardGrammar> parseTree = parser.parse(input);
 		
-		System.out.println("Parse Tree: " + parseTree);
+		//System.out.println("Parse Tree: " + parseTree);
 		 // display the parse tree in a web browser, for debugging only
-        Visualizer.showInBrowser(parseTree);
+		// Visualizer.showInBrowser(parseTree);
 
         // make an AST from the parse tree
+		System.out.println("making a board");
 		final Board board = makeAbstractSyntaxTree(parseTree);
 		return board;
 	}
@@ -86,7 +90,7 @@ public class BoardParser {
             		
             		case COMMAND:{
             			
-            			System.out.println("GrandChildren: " + grandChildren);
+            			//System.out.println("GrandChildren: " + grandChildren);
             			ParseTree<BoardGrammar> grandChild = grandChildren.get(0);
             			List<ParseTree<BoardGrammar>> greatGrandChildren = grandChild.children();
             			switch (grandChild.name()) {
@@ -111,7 +115,7 @@ public class BoardParser {
             				switch (greatGrandChild.name()) {
             				case SQUAREBUMPER: // name=NAME x=INTEGER y=INTEGER
             				{
-            					String name = grandChildren.get(0).text();
+            					String name = bumperProperties.get(0).text();
             					final int x = Integer.parseInt(bumperProperties.get(1).text());
             					final int y = Integer.parseInt(bumperProperties.get(2).text());
             					
@@ -121,7 +125,7 @@ public class BoardParser {
             				}
             				case CIRCLEBUMPER: // name=NAME x=INTEGER y=INTEGER
             				{
-            					String name = grandChildren.get(0).text();
+            					String name = bumperProperties.get(0).text();
             					final int x = Integer.parseInt(bumperProperties.get(1).text());
             					final int y = Integer.parseInt(bumperProperties.get(2).text());
             					
@@ -132,7 +136,7 @@ public class BoardParser {
             				case TRIANGLEBUMPER: // ame=NAME x=INTEGER y=INTEGER (orientation=0|90|180|270)?
             				{
             					Gadget bumper;
-            					String name = grandChildren.get(0).text();
+            					String name = bumperProperties.get(0).text();
             					final int x = Integer.parseInt(bumperProperties.get(1).text());
             					final int y = Integer.parseInt(bumperProperties.get(2).text());
             					if (grandChildren.size() > 2) {
@@ -176,14 +180,14 @@ public class BoardParser {
         	double friction1 = Board.FRICTION_1;
         	double friction2 = Board.FRICTION_2;
         	String name = children.get(0).text();
-        	System.out.println(children);
+        	//TODO: System.out.println(children);
         	if (children.size() > 1) {
 	        	for (int i = 1; i < children.size(); i++) {
 	        		ParseTree<BoardGrammar> child = children.get(i);
-	        		System.out.println(child.name());
+	        		//TODO: System.out.println(child.name());
 	        		switch (child.name()) {
 	        		case GRAVITY:{
-	        			System.out.println(child.children());
+	        			//TODO: System.out.println(child.children());
 	        			gravity = Double.parseDouble(child.children().get(0).text());
 	        			continue;
 	        		}

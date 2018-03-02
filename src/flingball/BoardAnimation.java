@@ -26,7 +26,7 @@ public class BoardAnimation {
 	 */
 
 	private void checkRep() {
-		// TODO
+		assert true;
 	}
 	
 
@@ -38,7 +38,7 @@ public class BoardAnimation {
 	                try {
 	                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 	                } catch (Exception e) {
-	                    e.printStackTrace();
+	                    e.printStackTrace(); 
 	                }
 
 	                JFrame frame = new JFrame("Flingball");
@@ -111,9 +111,6 @@ public class BoardAnimation {
 	    			
 	    			
 	    		}
-	    			
-//	            g2d.setColor(Color.RED);
-//	            g2d.fillOval(x, y, 30, 30);
 	            g2d.dispose();
 	        }
 
@@ -121,12 +118,14 @@ public class BoardAnimation {
 
 	    public static void main(String[] args) {
 	    	Board toDraw = new Board();
-	    	Ball toPlay = new Ball(new Vect(4.5,4.5), new Vect(-189,0), 0.5);
+	    	Ball toPlay = new Ball(new Vect(3,19.75), new Vect(60,-179), 0.25);
 	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
 	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
+	    	Gadget triangleBumper = new TriangleBumper("Triangle Bumper", 18, 12);
 	    	toDraw.addBall(toPlay);
 	    	toDraw = toDraw.addGadget(squareBumper);
 	    	toDraw = toDraw.addGadget(circleBumper);
+	    	toDraw = toDraw.addGadget(triangleBumper);
 	    	
 	    	
 	    	new BoardAnimation(toDraw);

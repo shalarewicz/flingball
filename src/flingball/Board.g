@@ -1,6 +1,6 @@
 @skip whitespace {
 	
-	BOARD ::= boardName (comment | command)* ;
+	BOARD ::= boardName '\n'* ((comment '\n'*) | (command '\n'*))* ;
 	boardName ::='board name''='NAME (GRAVITY)? (FRICTION1)? (FRICTION2)? '\n';
 	comment ::= '#' [A-Za-z0-9]* '\n';
 	command ::= BALL | BUMPER;
