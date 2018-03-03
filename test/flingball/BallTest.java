@@ -24,11 +24,11 @@ public class BallTest {
 	// TODO - Testing Strategy
 	// reflections. by testing ball = ball.reflectwall(wall).reflect(wall)
 	
-	private final Ball STATIONARY_BALL = new Ball(new Vect(1, 1), Vect.ZERO, 0.5);
+	private final Ball STATIONARY_BALL = new Ball("stationary", new Vect(1, 1), Vect.ZERO, 0.5);
 	@Test
 	public void testMove(){
 		//TODO
-		Ball start = new Ball(new Vect(0,0), new Vect(Angle.DEG_90, 50), 1.0);
+		Ball start = new Ball("test name", new Vect(0,0), new Vect(Angle.DEG_90, 50), 1.0);
 		while (start.getBoardCenter().y() < 20) {
 			start = start.move(0.1, 25.0, 0.025, 0.025);
 		}

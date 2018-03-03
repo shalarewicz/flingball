@@ -3,17 +3,20 @@ board name=test gravity=1.0
 #This is a comment
 #This is a nother comment
 
-ball name = test x=1.0 y = 4 xVelocity =-165 yVelocity = 65
+ball name = test x=1.0 y = 4 xVelocity =50 yVelocity = 65
+ball name = testBall2 x=18 y = 4 xVelocity =87 yVelocity = 45
 squareBumper name=testbump x=15 y=4
 
 circleBumper name = testCircle x = 10 y = 4
 triangleBumper name=testTriangle x=4 y=7
 triangleBumper name=testTriangle2 x=4 y=14 orientation=0
+triangleBumper name=testTriangle3 x=2 y=8 orientation=90
+triangleBumper name=testTriangle4 x=10 y=10 orientation=180
+triangleBumper name=testTriangle5 x=4 y=13 orientation=270
+
+# absorber name = testAbsorber x = 0 y = 19 width = 20 height = 1
+
+circleBumper name = testCircle2 x = 19 y = 4
 
 #This ball will go fast
-ball name=test2 x=1 y=3 xVelocity=180 yVelocity=50
-
-
-
-
 

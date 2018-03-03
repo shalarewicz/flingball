@@ -118,7 +118,7 @@ public class BoardAnimation {
 
 	    public static void main(String[] args) {
 	    	Board toDraw = new Board();
-	    	Ball toPlay = new Ball(new Vect(3,19.75), new Vect(60,-179), 0.25);
+	    	Ball toPlay = new Ball("Board Anime", new Vect(3,19.75), new Vect(60,-179), 0.25);
 	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
 	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
 	    	Gadget triangleBumper = new TriangleBumper("Triangle Bumper", 18, 12);

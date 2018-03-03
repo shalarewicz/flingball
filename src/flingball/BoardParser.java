@@ -41,7 +41,7 @@ public class BoardParser {
 	private enum BoardGrammar {
 		BOARD, COMMENT, COMMAND, BALL, BUMPER, SQUAREBUMPER, CIRCLEBUMPER, 
 		TRIANGLEBUMPER, INTEGER, FLOAT, NAME, WHITESPACE, ORIENTATION, FRICTION2, FRICTION1, 
-		GRAVITY, BOARDNAME
+		GRAVITY, BOARDNAME, ABSORBER
 	}
 
 	private static Parser<BoardGrammar> parser = makeParser();
@@ -64,7 +64,7 @@ public class BoardParser {
 		
 		//System.out.println("Parse Tree: " + parseTree);
 		 // display the parse tree in a web browser, for debugging only
-		// Visualizer.showInBrowser(parseTree);
+		//Visualizer.showInBrowser(parseTree);
 
         // make an AST from the parse tree
 		System.out.println("making a board");
@@ -139,13 +139,13 @@ public class BoardParser {
             					String name = bumperProperties.get(0).text();
             					final int x = Integer.parseInt(bumperProperties.get(1).text());
             					final int y = Integer.parseInt(bumperProperties.get(2).text());
-            					if (grandChildren.size() > 2) {
+            					if (bumperProperties.size() > 2) {
             						Orientation o = Orientation.ZERO;
-            						switch (bumperProperties.get(3).text()) {
-            						case "0": o = Orientation.ZERO;
-            						case "90": o = Orientation.NINETY;
-            						case "180": o = Orientation.ONEEIGHTY;
-            						case "270": o = Orientation.TWOSEVENTY;
+            						switch (bumperProperties.get(bumperProperties.size()-1).text()) {
+            						case "0": o = Orientation.ZERO; break;
+            						case "90": o = Orientation.NINETY; break;
+            						case "180": o = Orientation.ONEEIGHTY; break;
+            						case "270": o = Orientation.TWOSEVENTY; break;
             						}
             						bumper = new TriangleBumper(name, x, y, o);
             					}
@@ -156,12 +156,21 @@ public class BoardParser {
             					continue;
             				}
             				default:
-            					System.out.println("Could not match " + greatGrandChild.name());
+            					System.out.println("Could not match BUMPER " + greatGrandChild.name());
             					throw new RuntimeException("Should never get here");
             				}
             			}
+            			case ABSORBER:{
+            				String name = greatGrandChildren.get(0).text();
+            				int x = Integer.parseInt(greatGrandChildren.get(1).text());
+            				int y = Integer.parseInt(greatGrandChildren.get(2).text());
+            				int width = Integer.parseInt(greatGrandChildren.get(3).text());
+            				int height = Integer.parseInt(greatGrandChildren.get(4).text());
+            				board = board.addGadget(new Absorber(name, x, y, width, height));
+            				continue;
+            			}
             			default:
-            				System.out.println("Could not match " + grandChild.name());
+            				System.out.println("Could not match COMMAND: " + grandChild.name());
         					throw new RuntimeException("Should never get here");
         				}
             			}
@@ -169,7 +178,7 @@ public class BoardParser {
         				System.out.println("Could not match " + child.name());
     					throw new RuntimeException("Should never get here");
             		}// End Switch
-            	} // End for lope
+            	} // End for loop
             	
             	return board;
             }

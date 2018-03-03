@@ -111,6 +111,7 @@ public class Board extends JPanel{
 	}
 
 	private void checkRep() {
+		//TODO: Account for width of absorbers
 		
 		Set<Vect> anchors = new HashSet<Vect>();
 		Set<String> names = new HashSet<String>();
@@ -128,16 +129,16 @@ public class Board extends JPanel{
 			assert position.y() >= 0;
 		}
 		
-		for (Ball ball : balls) {
-			final double radius = ball.getRadius();
-			final double cx = ball.getBoardCenter().x();
-			final double cy = ball.getBoardCenter().y();
-			assert cx - radius >= 0;
-			assert cx + radius <= WIDTH;
-			assert cy - radius >= 0;
-			assert cy + radius <= HEIGHT;
-			
-		}
+//		for (Ball ball : balls) {
+//			final double radius = ball.getRadius();
+//			final double cx = ball.getBoardCenter().x();
+//			final double cy = ball.getBoardCenter().y();
+//			assert cx - radius >= 0;
+//			assert cx + radius <= WIDTH;
+//			assert cy - radius >= 0;
+//			assert cy + radius <= HEIGHT;
+//			
+//		}
 	}
 	
 	public String getName() {
@@ -316,14 +317,14 @@ public class Board extends JPanel{
 			Ball movedBall = ball.move(collisionTime);
 			//System.out.println("Moved to collision point: " + ball.getBoardCenter());
 			Ball newBall = nextGadget.reflectBall(movedBall);
-			//System.out.println("Collided: " + newBall.getBoardCenter());
 			this.removeBall(ball);
 			this.addBall(newBall);
-			moveOneBall(newBall, time - collisionTime);
-			//System.out.println("Moved remainder of frame: " + newBall.getBoardCenter());
+			if (newBall.getVelocity().length() > 0.0) {
+				moveOneBall(newBall, time - collisionTime);
+			}
 		} else {	
-			//Ball newBall = ball.move(time, this.gravity, this.friction1, this.friction2);
-			Ball newBall = ball.move(time);
+			Ball newBall = ball.move(time, this.gravity, this.friction1, this.friction2);
+			//Ball newBall = ball.move(time);
 			this.removeBall(ball);
 			this.addBall(newBall);
 		}

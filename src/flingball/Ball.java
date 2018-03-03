@@ -21,6 +21,7 @@ public class Ball {
 	// default diameter is 0.5L
 	private double radius = 0.25;
 	private String name;
+	private boolean trapped = false;
 	
 	
 	/*
@@ -45,19 +46,19 @@ public class Ball {
 	 * @param velocity velocity of the ball
 	 * @param radius radius of the ball. Must be greater than zero
 	 */
-	public Ball(Vect center, Vect velocity, double radius) {
-		this.name = "Test ball";
-		this.boardCenter = center;
-		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
-		this.anchor = new Vect(center.x() - radius, center.y() - radius);
-		
-		//TODO: Remove if not needed since using BigDecimal
-		this.boardVelocity = new Vect(velocity.x(), velocity.y());
-		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
-		
-		this.radius = radius;
-		checkRep();
-	}
+//	public Ball(Vect center, Vect velocity, double radius) {
+//		this.name = "Test ball";
+//		this.boardCenter = center;
+//		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
+//		this.anchor = new Vect(center.x() - radius, center.y() - radius);
+//		
+//		//TODO: Remove if not needed since using BigDecimal
+//		this.boardVelocity = new Vect(velocity.x(), velocity.y());
+//		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
+//		
+//		this.radius = radius;
+//		checkRep();
+//	}
 	
 	/**
 	 * Creates a new Ball for use on a flingBall board
@@ -269,7 +270,7 @@ public class Ball {
 	 * @return A ball with velocity v
 	 */
 	public Ball setVelocity(Vect v) {
-		return new Ball(this.boardCenter, v, this.radius);
+		return new Ball(this.name, this.boardCenter, v, this.radius);
 	}
 	
 	/**
@@ -319,7 +320,7 @@ public class Ball {
 	 * @return A ball that has collided with the line. 
 	 */
 	public Ball reflectLine(LineSegment line) {
-		return new Ball(this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity)), this.radius);
+		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity)), this.radius);
 	}
 	
 	/**
@@ -329,7 +330,7 @@ public class Ball {
 	 * @return A ball which has collided with the line
 	 */
 	public Ball reflectLine(LineSegment line, Double reflectionCoeff) {
-		return new Ball(this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity, reflectionCoeff)), this.radius);
+		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity, reflectionCoeff)), this.radius);
 	}
 	
 	/**
@@ -338,7 +339,7 @@ public class Ball {
 	 * @return A ball that has collided with the circle
 	 */
 	public Ball reflectCircle(Circle circle) {
-		return new Ball(this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity)), this.radius);
+		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity)), this.radius);
 	}
 	
 	/**
@@ -348,7 +349,7 @@ public class Ball {
 	 * @return A ball which has collided with the circle
 	 */
 	public Ball reflectCircle(Circle circle, Double reflectionCoeff) {
-		return new Ball(this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity, reflectionCoeff)), this.radius);
+		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity, reflectionCoeff)), this.radius);
 	}
 	
 	@Override
@@ -364,7 +365,7 @@ public class Ball {
 	
 	@Override
 	public String toString() {
-		return "Ball{center=" + this.boardCenter + ", velocity=" + this.boardVelocity + ", radius=" + this.radius + "}";
+		return "Ball{name=" + this.name + ", center=" + this.boardCenter + ", velocity=" + this.boardVelocity + ", radius=" + this.radius + "}";
 	}
 	
 	@Override
@@ -372,6 +373,27 @@ public class Ball {
 		//TODO
 		throw new RuntimeException("Not yet implemented");
 	}
+
+	public String name() {
+		return this.name;
+	}
+
+	public boolean isTrapped() {
+		return this.trapped ;
+	}
+	
+	public Ball trap() {
+		Ball result = this;
+		result.trapped = true;
+		return result;
+	}
+	
+	public Ball release() {
+		Ball result = this;
+		result.trapped = false;
+		return result;
+	}
+
 	
 //	public static void main(String[] args) {
 //        JFrame frame = new JFrame("this is a ball");

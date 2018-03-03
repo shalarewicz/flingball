@@ -70,14 +70,23 @@ public class TriangleBumper implements Gadget {
 		switch (this.orientation) {
 		case ZERO:{
 			final Wall side1 = new Wall(name + " side1", x, -y, x+1, -y);
-			final Wall side2 = new Wall(name + " side2", x+1, -y, x+1, -y-1);
-			final Wall hypotenuse = new Wall(name + " hypotenuse", x, -y, x+1, -y-1);
+			final Wall side2 = new Wall(name + " side2", x, -y, x, -y-1);
+			final Wall hypotenuse = new Wall(name + " hypotenuse", x, -y-1, x+1, -y);
 			walls = new ArrayList<Wall>(Arrays.asList(side1, side2, hypotenuse));
 			checkRep();
 			return;
 		}
 		case NINETY: {
 			final Wall side1 = new Wall(name + " side1", x+1, -y, x+1, -y-1);
+			final Wall side2 = new Wall(name + " side2", x+1, -y, x, -y);
+			final Wall hypotenuse = new Wall(name + " hypotenuse", x, -y, x+1, -y-1);
+			walls = new ArrayList<Wall>(Arrays.asList(side1, side2, hypotenuse));
+			checkRep();
+			return;
+		}
+		
+		case ONEEIGHTY: {
+			final Wall side1 = new Wall(name + " side1", x+1, -y-1, x+1, -y);
 			final Wall side2 = new Wall(name + " side2", x+1, -y-1, x, -y-1);
 			final Wall hypotenuse = new Wall(name + " hypotenuse", x, -y-1, x+1, -y);
 			walls = new ArrayList<Wall>(Arrays.asList(side1, side2, hypotenuse));
@@ -85,19 +94,10 @@ public class TriangleBumper implements Gadget {
 			return;
 		}
 		
-		case ONEEIGHTY: {
-			final Wall side1 = new Wall(name + " side1", x, -y, x, -y-1);
+		case TWOSEVENTY: {
+			final Wall side1 = new Wall(name + " side1", x, -y-1, x, -y);
 			final Wall side2 = new Wall(name + " side2", x, -y-1, x+1, -y-1);
 			final Wall hypotenuse = new Wall(name + " hypotenuse", x, -y, x+1, -y-1);
-			walls = new ArrayList<Wall>(Arrays.asList(side1, side2, hypotenuse));
-			checkRep();
-			return;
-		}
-		
-		case TWOSEVENTY: {
-			final Wall side1 = new Wall(name + " side1", x, -y, x+1, -y);
-			final Wall side2 = new Wall(name + " side2", x, -y, x, -y-1);
-			final Wall hypotenuse = new Wall(name + " hypotenuse", x, -y-1, x+1, -y);
 			walls = new ArrayList<Wall>(Arrays.asList(side1, side2, hypotenuse));
 			checkRep();
 			return;
@@ -222,6 +222,6 @@ public class TriangleBumper implements Gadget {
 	
 	@Override
 	public String toString() {
-		return "{Triangle Bumper[" + this.name + " " + this.position()+"]}";
+		return "Triangle Bumper{" + this.name + " " + this.position() + " " + this.orientation +"}";
 	}
 }
