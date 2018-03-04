@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import physics.Circle;
+import physics.Physics;
 import physics.Vect;
 
 public class CircleBumper implements Gadget {
@@ -76,13 +77,6 @@ public class CircleBumper implements Gadget {
 	}
 
 	@Override
-	public int priority() {
-		//TODO
-		throw new RuntimeException("Not Yet Implemented");
-	}
-
-
-	@Override
 	public String getTrigger() {
 		return this.trigger;
 	}
@@ -133,4 +127,13 @@ public class CircleBumper implements Gadget {
 	private boolean samePosition(CircleBumper that) {
 		return this.x == that.x && this.y == that.y;
  	}
+
+	@Override
+	public boolean ballOverlap(Ball ball) {
+		double distance = Math.sqrt(Physics.distanceSquared(ball.getBoardCenter(), this.bumper.getCenter()));
+//		System.out.println(ball.getBoardCenter() +" " + this.position());
+//		System.out.println(this + " and " + ball + " distance " + distance);
+		return distance < ball.getRadius() + this.RADIUS;
+		
+	}
 }

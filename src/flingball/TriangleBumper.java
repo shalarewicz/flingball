@@ -6,6 +6,9 @@ package flingball;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,13 +150,6 @@ public class TriangleBumper implements Gadget {
 	}
 
 	@Override
-	public int priority() {
-		// TODO 
-		throw new RuntimeException("Not yet implemeted");
-	}
-
-
-	@Override
 	public String getTrigger() {
 		return this.trigger;
 	}
@@ -220,6 +216,45 @@ public class TriangleBumper implements Gadget {
 		throw new RuntimeException("Should never get here. Ball did not collide with Triangle Bumper");
 	}
 	
+	@Override
+	public boolean ballOverlap(Ball ball) {
+		Vect anchor = ball.getAnchor();
+		Double d = ball.getRadius() * 2;
+		Area ballShape = new Area (new Arc2D.Double(anchor.x(), anchor.y(), d, d, 0, 360, Arc2D.CHORD));
+		 switch (this.orientation) {
+	        case ZERO:{
+	        	final int[] xPoints = {x, x+1, x};
+	        	final int[] yPoints = {y, y, y-1};
+	        	Area triangle = new Area (new Polygon(xPoints, yPoints, 3));
+	        	ballShape.intersect(triangle);
+	        	return !ballShape.isEmpty();
+	        }
+	        case NINETY:{
+	        	final int[] xPoints = {x, x+1, x+1};
+	        	final int[] yPoints = {y, y, y-1};
+	        	Area triangle = new Area (new Polygon(xPoints, yPoints, 3));
+	        	ballShape.intersect(triangle);
+	        	return !ballShape.isEmpty();
+	        }
+	        case ONEEIGHTY:{
+	        	final int[] xPoints = {x+1, x+1, x};
+	        	final int[] yPoints = {y, y-1, y-1};
+	        	Area triangle = new Area (new Polygon(xPoints, yPoints, 3));
+	        	ballShape.intersect(triangle);
+	        	return !ballShape.isEmpty();
+	        }
+	        case TWOSEVENTY:{
+	        	final int[] xPoints = {x, x+1, x};
+	        	final int[] yPoints = {y, y-1, y-1};
+	        	Area triangle = new Area (new Polygon(xPoints, yPoints, 3));
+	        	ballShape.intersect(triangle);
+	        	return !ballShape.isEmpty();
+	        }
+	        default:
+	        	throw new RuntimeException("Should never get here. Cannot generate triangle bunper");
+	        
+	        }
+	}
 	@Override
 	public String toString() {
 		return "Triangle Bumper{" + this.name + " " + this.position() + " " + this.orientation +"}";

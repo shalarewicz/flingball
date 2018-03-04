@@ -44,7 +44,7 @@ public interface Gadget {
 	/**
 	 * Sets the reflectionCoefficient for a gadget. The default value is 1.0
 	 * 
-	 * @param sets the relection coefficient of a gadget. 
+	 * @param sets the reflection coefficient of a gadget. 
 	 * 
 	 */
 	public void setReflectionCoefficient(double x);
@@ -56,14 +56,6 @@ public interface Gadget {
 	 * if a collision will not occur. 
 	 */
 	public double collisionTime(Ball ball);
-	
-	/**
-	 * This method is used to determine which gadget a ball should reflect off given equal collision times. 
-	 * 
-	 * @return The collision priority of an object
-	 */
-	public int priority();
-	
 	
 	/**
 	 * 
@@ -101,7 +93,6 @@ public interface Gadget {
 	 */
 	public BufferedImage generate(int L);
 	
-	//TODO: Make NO_TRIGGER a Gadget. 
 	public final static String NO_TRIGGER = "NO_TRIGGER";
 	public final static Double REFLECTION_COEFFICIENT = 1.0;
 	
@@ -113,6 +104,8 @@ public interface Gadget {
 	
 	@Override
 	public boolean equals(Object that);
+	
+	public boolean ballOverlap(Ball ball);
 	
 	
 	

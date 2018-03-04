@@ -6,8 +6,6 @@ package flingball;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +32,6 @@ public class Board extends JPanel{
 	 * TODO: Safety from rep exposure
 	 */
 	
-	//private int height, width;
 	
 	//TODO What is this?
 	private static final long serialVersionUID = 1L;
@@ -53,9 +50,9 @@ public class Board extends JPanel{
 	private final Wall BOTTOM = new Wall ("BOTTOM", 0, -HEIGHT, WIDTH, -HEIGHT);
 	private final Wall LEFT = new Wall ("LEFT", 0, 0, 0, -HEIGHT);
 	private final Wall RIGHT = new Wall ("RIGHT", WIDTH, 0, WIDTH, -HEIGHT);
-	private double gravity = this.GRAVITY;
-	private double friction1 = this.FRICTION_1;
-	private double friction2 = this.FRICTION_2;
+	private double gravity = GRAVITY;
+	private double friction1 = FRICTION_1;
+	private double friction2 = FRICTION_2;
 	
 	private final List<Gadget> WALLS = new ArrayList<Gadget>(Arrays.asList(TOP, BOTTOM, LEFT, RIGHT));
 	private List<Gadget> gadgets = new ArrayList<Gadget>();
@@ -65,34 +62,6 @@ public class Board extends JPanel{
 	//TODO Allow user to set this field
 	final int L = 40;
 	
-	public Board() {
-		this.NAME = "TEST"; //TODO Update or remove constructor
-		this.gadgets = new ArrayList<Gadget>();
-		this.triggers = new HashMap<Gadget,Gadget>();
-		this.balls = new ArrayList<Ball>();
-		checkRep();
-	}
-	
-	public Board(String name) {
-		this.NAME = name;
-	}
-	
-	// This can used when creating custom sized boards
-//	public Board(int height, int width) {
-//		this.height = height;
-//		this.width = width;
-//		
-//		// Flingball board as origin in top left. Moving origin to bottom left to make physics calculations easier
-//		// Otherwise velocity <x, y> --> <x, -y> or <r, theta> --> <r, 320 - theta>
-//		this.top = new Wall(0, 0, width, 0);
-//		this.bottom = new Wall(0, -height, width, -height);
-//		this.left = new Wall(0, 0, 0, -height);
-//		this.right = new Wall(width, 0, width, -height);
-//		
-//		checkRep();
-//		
-//	}
-
 	private Board(List<Gadget> newGadgets, Map<Gadget, Gadget> newTriggers, List<Ball> balls) {
 		this.NAME = "TEST"; //TODO Update or remove constructor
 		this.gadgets = newGadgets;
@@ -111,7 +80,6 @@ public class Board extends JPanel{
 	}
 
 	private void checkRep() {
-		//TODO: Account for width of absorbers
 		
 		Set<Vect> anchors = new HashSet<Vect>();
 		Set<String> names = new HashSet<String>();
@@ -121,24 +89,31 @@ public class Board extends JPanel{
 			assert anchors.add(gadget.position());
 		}
 		
-		for (int i = 0; i < gadgets.size(); i++) {
-			Vect position = gadgets.get(i).position();
-			assert position.x() <= WIDTH - 1;
+		for (Gadget gadget : gadgets) {
+			Vect position = gadget.position();
+			int gadgetWidth = gadget.width();
+			int gadgetHeight = gadget.height();
+			assert position.x() <= WIDTH - gadgetWidth;
 			assert position.x() >= 0;
-			assert position.y() <= HEIGHT - 1;
+			assert position.y() <= HEIGHT - gadgetHeight;
 			assert position.y() >= 0;
+			for (Ball ball : balls) {
+				if (!ball.isTrapped()) {
+					assert !gadget.ballOverlap(ball);
+				}
+			}
 		}
 		
-//		for (Ball ball : balls) {
-//			final double radius = ball.getRadius();
-//			final double cx = ball.getBoardCenter().x();
-//			final double cy = ball.getBoardCenter().y();
-//			assert cx - radius >= 0;
-//			assert cx + radius <= WIDTH;
-//			assert cy - radius >= 0;
-//			assert cy + radius <= HEIGHT;
-//			
-//		}
+		for (Ball ball : balls) {
+			final double radius = ball.getRadius();
+			final double cx = ball.getBoardCenter().x();
+			final double cy = ball.getBoardCenter().y();
+			assert cx - radius >= 0;
+			assert cx + radius <= WIDTH;
+			assert cy - radius >= 0;
+			assert cy + radius <= HEIGHT;
+			
+		}
 	}
 	
 	public String getName() {
@@ -198,7 +173,14 @@ public class Board extends JPanel{
 		List<Gadget> newGadgets = new ArrayList<Gadget>(this.gadgets);
 		newGadgets.add(gadget);
 		
-		return new Board(newGadgets, newTriggers, this.balls);
+		Board newBoard = new Board(newGadgets, newTriggers, this.balls);
+		newBoard.gravity = this.gravity;
+		newBoard.friction1 = this.friction1;
+		newBoard.friction2 = this.friction2;
+		newBoard.checkRep();
+		
+		return newBoard;
+		
 	}
 	
 	/**
@@ -251,34 +233,34 @@ public class Board extends JPanel{
 		}
 	}
 	
-	public void generate() {
-		
-		BufferedImage output = new BufferedImage(this.WIDTH * L, this.HEIGHT * L, BufferedImage.TYPE_4BYTE_ABGR);
-		Graphics graphics = (Graphics2D) output.getGraphics();
-		
-		graphics.setColor(Color.BLACK);
-		graphics.fillRect(0, 0, WIDTH * L, HEIGHT * L);
-		
-		final ImageObserver NO_OBSERVER_NEEDED = null;
-		
-		graphics.setColor(Color.BLUE);
-		for (Ball ball : balls) {
-			final Vect anchor = ball.getAnchor().times(L);
-			
-			
-			graphics.drawImage(ball.generate(L), (int) anchor.x(), (int) anchor.y(), NO_OBSERVER_NEEDED);
-					
-		}
-		
-		for (Gadget gadget : gadgets) {
-			final int xAnchor = (int) gadget.position().x()*L;
-			final int yAnchor = (int) gadget.position().y()*L;
-			
-			graphics.drawImage(gadget.generate(L), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
-			
-		}
-		
-	}
+//	public void generate() {
+//		
+//		BufferedImage output = new BufferedImage(this.WIDTH * L, this.HEIGHT * L, BufferedImage.TYPE_4BYTE_ABGR);
+//		Graphics graphics = (Graphics2D) output.getGraphics();
+//		
+//		graphics.setColor(Color.BLACK);
+//		graphics.fillRect(0, 0, WIDTH * L, HEIGHT * L);
+//		
+//		final ImageObserver NO_OBSERVER_NEEDED = null;
+//		
+//		graphics.setColor(Color.BLUE);
+//		for (Ball ball : balls) {
+//			final Vect anchor = ball.getAnchor().times(L);
+//			
+//			
+//			graphics.drawImage(ball.generate(L), (int) anchor.x(), (int) anchor.y(), NO_OBSERVER_NEEDED);
+//					
+//		}
+//		
+//		for (Gadget gadget : gadgets) {
+//			final int xAnchor = (int) gadget.position().x()*L;
+//			final int yAnchor = (int) gadget.position().y()*L;
+//			
+//			graphics.drawImage(gadget.generate(L), xAnchor, yAnchor, NO_OBSERVER_NEEDED);
+//			
+//		}
+//		
+//	}
 
 	/**
 	 * Will move all balls and gadgets on the board to their new positions/stats after all moves/collisions that would occur
@@ -287,7 +269,9 @@ public class Board extends JPanel{
 	 */
 	public void play(double time) {
 		for (int i = 0; i < this.balls.size(); i++) {
-			moveOneBall(balls.get(i), time);
+			if (!balls.get(i).isTrapped()) {
+				moveOneBall(balls.get(i), time);
+			}
 		}
 	}
 
@@ -313,16 +297,15 @@ public class Board extends JPanel{
 		
 		if (collisionTime <= time && nextGadget != NO_COLLISION) {
 			//TODO: A ball will bounce off a square bumper or line if it goes right next to it parallel to a side
-			//Ball movedBall = ball.move(collisionTime, this.gravity, this.friction1, this.friction2);
-			Ball movedBall = ball.move(collisionTime);
-			//System.out.println("Moved to collision point: " + ball.getBoardCenter());
+			Ball movedBall = ball.move(collisionTime, this.gravity, this.friction1, this.friction2);
+			//Ball movedBall = ball.move(collisionTime);
 			Ball newBall = nextGadget.reflectBall(movedBall);
 			this.removeBall(ball);
 			this.addBall(newBall);
 			if (newBall.getVelocity().length() > 0.0) {
 				moveOneBall(newBall, time - collisionTime);
 			}
-		} else {	
+		} else {
 			Ball newBall = ball.move(time, this.gravity, this.friction1, this.friction2);
 			//Ball newBall = ball.move(time);
 			this.removeBall(ball);
@@ -333,7 +316,8 @@ public class Board extends JPanel{
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		result.append("{FLINGBALL BOARD:[" + this.NAME + ", ");
+		result.append("{FLINGBALL BOARD:[" + this.NAME + ", Gravity: " + this.gravity);
+		result.append(", friction1: " + this.friction1 + ", friction2: " + this.friction2);
 		result.append("Balls:" + this.balls);
 		result.append("Gadgets:" + this.gadgets);
 		return result.toString();

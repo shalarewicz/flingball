@@ -7,16 +7,13 @@ import physics.LineSegment;
 import physics.Physics;
 import physics.Vect;
 
-
-
-// Immutable Type representing the outer wall of a flingball board
+// Immutable Type representing a wall of a flingball board
 public class Wall implements Gadget {
 	
 	private final double x1, y1, x2, y2;
 	
 	private final double REFLECTION_COEFFICIENT = 1.0;
 	
-	//TODO might not need this as a field
 	private final LineSegment wall;
 	private final Circle c1, c2;
 	
@@ -137,14 +134,6 @@ public class Wall implements Gadget {
 	}
 
 	@Override
-	public int priority() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-
-
-	@Override
 	public String getTrigger() {
 		// TODO Auto-generated method stub
 		return null;
@@ -194,6 +183,16 @@ public class Wall implements Gadget {
 	@Override
 	public String toString() {
 		return "Wall:" + this.name +"[<" + this.x1 + ", " + this.y1 + ">, <"+ this.x2 + ", " + this.y2 +">]";
+	}
+
+
+	@Override
+	public boolean ballOverlap(Ball ball) {
+		Vect ballCenter = ball.getCartesianCenter();
+		Vect perpendicularPoint = Physics.perpendicularPoint(this.wall, ballCenter);
+		System.out.println(ballCenter);
+		System.out.println(perpendicularPoint);
+		return Physics.distanceSquared(ballCenter, perpendicularPoint) >= 0;
 	}
 	
 }

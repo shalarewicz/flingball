@@ -1,41 +1,42 @@
 package flingball;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Stream;
 
 import edu.mit.eecs.parserlib.ParseTree;
 import edu.mit.eecs.parserlib.Parser;
 import edu.mit.eecs.parserlib.UnableToParseException;
-import edu.mit.eecs.parserlib.Visualizer;
 import flingball.TriangleBumper.Orientation;
 import physics.Vect;
+// import edu.mit.eecs.parserlib.Visualizer;
 
 public class BoardParser {
 
 
-	public static void main(final String[] args) throws UnableToParseException{
-		File test = new File("src/flingball/sampleBoard.fb");
+	public static void main(final String[] args) throws IOException{
+		String test = "boards/sampleBoard.fb";
 		try {
-			BufferedReader testReader = new BufferedReader(new FileReader(test));
-			String result = "";
-			String next = testReader.readLine();
-			//TODO do this better
-			while (next != null) {
-				result = result + next + "\n";
-				next = testReader.readLine();
-			}
-			System.out.println("Input: \n" + result);
-			final Board board = BoardParser.parse(result);
+			Path filePath = Paths.get(test);
+		//	Path filePath = Paths.get("boards/sampleBoard.fb");
+			Stream<String> fileIn = Files.lines(filePath);
+			StringBuilder boardFile = new StringBuilder();
+			fileIn.forEach(s -> boardFile.append(s+"\n"));
+			fileIn.close();
+			System.out.println("Input: \n" + boardFile);
+			final Board board = BoardParser.parse(boardFile.toString());
 			System.out.println("The constructed board is " + board);
-			testReader.close(); 
 			new BoardAnimation(board);
+		} catch (IOException e) {
+			System.out.println(test + " not found");
+		} catch (UnableToParseException e) {
+			System.out.println("Unable to parse " + test);
+		}
 			
-		} catch (Exception e) {
-			System.out.println(e);
-		} 
 	}
 	
 	private enum BoardGrammar {
@@ -62,12 +63,10 @@ public class BoardParser {
 	public static Board parse(final String input) throws UnableToParseException{
 		final ParseTree<BoardGrammar> parseTree = parser.parse(input);
 		
-		//System.out.println("Parse Tree: " + parseTree);
-		 // display the parse tree in a web browser, for debugging only
+		// display the parse tree in a web browser, for debugging only
 		//Visualizer.showInBrowser(parseTree);
 
         // make an AST from the parse tree
-		System.out.println("making a board");
 		final Board board = makeAbstractSyntaxTree(parseTree);
 		return board;
 	}
@@ -90,7 +89,6 @@ public class BoardParser {
             		
             		case COMMAND:{
             			
-            			//System.out.println("GrandChildren: " + grandChildren);
             			ParseTree<BoardGrammar> grandChild = grandChildren.get(0);
             			List<ParseTree<BoardGrammar>> greatGrandChildren = grandChild.children();
             			switch (grandChild.name()) {
@@ -133,7 +131,7 @@ public class BoardParser {
             					board = board.addGadget(bumper);
             					continue;
             				}
-            				case TRIANGLEBUMPER: // ame=NAME x=INTEGER y=INTEGER (orientation=0|90|180|270)?
+            				case TRIANGLEBUMPER: // name=NAME x=INTEGER y=INTEGER (orientation=0|90|180|270)?
             				{
             					Gadget bumper;
             					String name = bumperProperties.get(0).text();
@@ -189,14 +187,11 @@ public class BoardParser {
         	double friction1 = Board.FRICTION_1;
         	double friction2 = Board.FRICTION_2;
         	String name = children.get(0).text();
-        	//TODO: System.out.println(children);
         	if (children.size() > 1) {
 	        	for (int i = 1; i < children.size(); i++) {
 	        		ParseTree<BoardGrammar> child = children.get(i);
-	        		//TODO: System.out.println(child.name());
 	        		switch (child.name()) {
 	        		case GRAVITY:{
-	        			//TODO: System.out.println(child.children());
 	        			gravity = Double.parseDouble(child.children().get(0).text());
 	        			continue;
 	        		}
@@ -213,11 +208,7 @@ public class BoardParser {
 	    		}
 	        	}
         	}
-        	
         	return new Board(name, gravity, friction1, friction2);
-        	
-        	//TOOD - handle case for gravity and friction values specified
-        	
         }
                 	
 		default:

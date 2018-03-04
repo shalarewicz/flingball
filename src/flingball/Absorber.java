@@ -16,10 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-
 import physics.Vect;
 
 public class Absorber implements Gadget {
@@ -113,21 +109,16 @@ public class Absorber implements Gadget {
 				y - radius > aY && y + radius < aY + this.height;
 		
 	}
+	
 	@Override
 	public double collisionTime(Ball ball) {
 		double collisionTime = Double.POSITIVE_INFINITY;
-		if (ballInside(ball)) {
+		if (!ballInside(ball)) {
 			for (Wall wall : walls) {
 				collisionTime = Math.min(collisionTime, wall.collisionTime(ball));
 			}
 		}
 		return collisionTime;
-	}
-
-	@Override
-	public int priority() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	/**
@@ -194,11 +185,13 @@ public class Absorber implements Gadget {
 
 	@Override
 	public Ball reflectBall(Ball ball) {
-		Ball toReturn = storeBall(ball);
 		if (ballCount > 0) {
-			return toReturn.setVelocity(new Vect(0, -50)).release();
+			double r = ball.getRadius();
+			Vect ballPosition = new Vect(x + width - r, -y - r);
+			return new Ball(ball.name(), ballPosition, new Vect(0, -50), r);
 		}
 		else {
+			Ball toReturn = storeBall(ball);
 			ballCount++;
 			return toReturn;
 		}
@@ -223,6 +216,11 @@ public class Absorber implements Gadget {
 	private boolean samePosition(Absorber that) {
 		return this.x == that.x && this.y == that.y && this.width == that.width && this.height == that.height;
  	}
+
+	@Override
+	public boolean ballOverlap(Ball ball) {
+		return this.ballInside(ball);
+	}
 	
 //	public static void main(String[] args) {
 //		Gadget toDraw = new Absorber("test", 1, 1, 10, 5);

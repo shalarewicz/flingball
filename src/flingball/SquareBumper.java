@@ -13,10 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-
 import physics.Vect;
 
 public class SquareBumper implements Gadget {
@@ -97,12 +93,6 @@ public class SquareBumper implements Gadget {
 	}
 
 	@Override
-	public int priority() {
-		//TODO
-		throw new RuntimeException("Not Yet Implemented");
-	}
-	
-	@Override
 	public double collisionTime(Ball ball) {
 		double collisionTime = Double.POSITIVE_INFINITY;
 		for (Wall wall : walls) {
@@ -177,12 +167,16 @@ public class SquareBumper implements Gadget {
 		return this.xAnchor == that.xAnchor && this.yAnchor == that.yAnchor;
  	}
 	
-	public static void main(String[] args) {
-		JFrame frame = new JFrame("this is a square bumper");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Gadget toDraw = new SquareBumper("bumper", 1,1);
-        frame.add(new JLabel(new ImageIcon(toDraw.generate(20))));
-        frame.pack();
-        frame.setVisible(true);
+	
+	@Override
+	public boolean ballOverlap(Ball ball) {
+		final double x = ball.getBoardCenter().x();
+		final double y = ball.getBoardCenter().y();
+		final double radius = ball.getRadius();
+		final double aX = this.position().x();
+		final double aY = this.position().y();
+		
+		return x - radius > aX && x + radius < aX + this.width() && 
+				y - radius > aY && y + radius < aY + this.height();
 	}
 }

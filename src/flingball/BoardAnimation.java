@@ -63,7 +63,7 @@ public class BoardAnimation {
 	        	this.L = board.L;
 	            Timer timer = new Timer();
 	            TimerTask play = new TimerTask() {
-//	                @Override
+	                @Override
 	                public void run() {
 	                    board.play(PLAY_RATE);
 	                    repaint();
@@ -104,6 +104,7 @@ public class BoardAnimation {
 	    			
 	    		}
 	    		
+	    		//TODO REMOVE GRID
 	    		for (int i = 1; i <= 20; i++) {
 	    			g2d.setColor(Color.GREEN);
 	    			g2d.drawLine(0, i*this.L, this.L * this.L, i*this.L);
@@ -116,18 +117,4 @@ public class BoardAnimation {
 
 	    }
 
-	    public static void main(String[] args) {
-	    	Board toDraw = new Board();
-	    	Ball toPlay = new Ball("Board Anime", new Vect(3,19.75), new Vect(60,-179), 0.25);
-	    	Gadget squareBumper = new SquareBumper("Square Bumper", 5, 5);
-	    	Gadget circleBumper = new CircleBumper("Circle Bumper", 10, 5);
-	    	Gadget triangleBumper = new TriangleBumper("Triangle Bumper", 18, 12);
-	    	toDraw.addBall(toPlay);
-	    	toDraw = toDraw.addGadget(squareBumper);
-	    	toDraw = toDraw.addGadget(circleBumper);
-	    	toDraw = toDraw.addGadget(triangleBumper);
-	    	
-	    	
-	    	new BoardAnimation(toDraw);
-	    }
 	}

@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 
 import physics.*;
 
@@ -41,26 +40,6 @@ public class Ball {
 	}
 	
 	/**
-	 * Creates a new Ball for use on a flingBall board with center center
-	 * @param center center of the ball
-	 * @param velocity velocity of the ball
-	 * @param radius radius of the ball. Must be greater than zero
-	 */
-//	public Ball(Vect center, Vect velocity, double radius) {
-//		this.name = "Test ball";
-//		this.boardCenter = center;
-//		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
-//		this.anchor = new Vect(center.x() - radius, center.y() - radius);
-//		
-//		//TODO: Remove if not needed since using BigDecimal
-//		this.boardVelocity = new Vect(velocity.x(), velocity.y());
-//		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
-//		
-//		this.radius = radius;
-//		checkRep();
-//	}
-	
-	/**
 	 * Creates a new Ball for use on a flingBall board
 	 * @param name name of the ball
 	 * @param center center of the ball
@@ -72,8 +51,7 @@ public class Ball {
 		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
 		this.anchor = new Vect(center.x() - radius, center.y() - radius);
 		
-		//TODO: Remove if not needed since using BigDecimal
-		this.boardVelocity = new Vect(velocity.x(), velocity.y());
+		this.boardVelocity = velocity;
 		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
 		
 		checkRep();
@@ -92,8 +70,7 @@ public class Ball {
 		this.cartesianCenter = new Vect(this.boardCenter.x(), -this.boardCenter.y());
 		this.anchor = new Vect(center.x() - radius, center.y() - radius);
 		
-		//TODO: Remove if not needed since using BigDecimal
-		this.boardVelocity = new Vect(velocity.x(), velocity.y());
+		this.boardVelocity = velocity;
 		this.cartesianVelocity = new Vect(velocity.x(), -velocity.y());
 		this.radius = radius;
 		
@@ -168,15 +145,12 @@ public class Ball {
 		// delta_v = at
 		// v_new_f = v_old * (1 - mu*delta_t - mu2*|v_old|*delta_t) 
 		
-		DecimalFormat df = new DecimalFormat("#.###########");
-		df.setRoundingMode(RoundingMode.HALF_EVEN);
 		
-		//TODO: Floating point math is messing this up
+		
 		double v_initial = this.cartesianVelocity.length();
 		
 		//Change in velocity due to gravity = gravity * time
 		final Vect deltaVGravity = new Vect(Angle.DEG_270, gravity).times(time);
-		System.out.println("dv gravity = " + deltaVGravity);
 		
 		// Final velocity as a result of friction
 		double vFinalFriction = v_initial * (1 - mu*time - mu2 * time * Math.abs(v_initial));
@@ -184,32 +158,29 @@ public class Ball {
 		//Change in velocity due to friction = a_f * t (where a_f is acceleration due to friction)
 		Vect deltaVFriction = new Vect(this.cartesianVelocity.angle().plus(Angle.DEG_180), Math.abs(vFinalFriction - v_initial));
 		
-		System.out.println("dv friction: " + deltaVFriction);
-		
 		// Net change in velocity = a*t
 		Vect deltaV = deltaVGravity.plus(deltaVFriction);
-		System.out.println("dv = " + deltaV);
 		
 		Vect newVelocity = this.cartesianVelocity.plus(deltaV);
 		
-		System.out.println("newV = " + newVelocity);
-		
-		double newVX = Double.parseDouble(df.format(newVelocity.x()));
-		double newVY = Double.parseDouble(df.format(newVelocity.y()));
-		
-		Vect roundedVelocity = new Vect(newVX, newVY);
 		
 		// displacement = v_i*t + a*t*t = v_i*t + deltaV * t
 		Vect displacement = this.cartesianVelocity.times(time).plus(deltaV.times(time));
 		
 		Vect newCartesianCenter = this.cartesianCenter.plus(displacement);
+		
+		//Round displacement to avoid floating point errors which lead to ball being off the board. 
+		DecimalFormat df = new DecimalFormat("#.##");
+		df.setRoundingMode(RoundingMode.HALF_EVEN);
+		
 		double newCX = Double.parseDouble(df.format(newCartesianCenter.x()));
 		double newCY = Double.parseDouble(df.format(newCartesianCenter.y()));
+		
 		Vect correctedCartesianCenter = new Vect(newCX, newCY);
 		
 		Vect newBoardCenter = getBoardCenterFromCartesianCenter(correctedCartesianCenter);
 		
-		return new Ball(this.name, newBoardCenter, getBoardCenterFromCartesianCenter(roundedVelocity), this.radius);
+		return new Ball(this.name, newBoardCenter, getBoardCenterFromCartesianCenter(newVelocity), this.radius);
 		
 	}
 	
@@ -219,8 +190,7 @@ public class Ball {
 	 * 
 	 * @return The position of the origin (top left) of the bounding box of the ball
 	 */
-	//TODO Does this need to be public?
-	public Vect getAnchor() {
+	Vect getAnchor() {
 		return this.anchor;
 	}
 	
@@ -236,7 +206,7 @@ public class Ball {
 	 * 
 	 * @return The position of the center of the ball in Cartesian Space.
 	 */
-	private Vect getCartesianCenter() {
+	Vect getCartesianCenter() {
 		return this.cartesianCenter;
 	}
 	
@@ -308,8 +278,6 @@ public class Ball {
 	 * @return Collision time in seconds or POSITIVE_INFINITY if no collision will occur
 	 */
 	public double timeUntilCircleCollision(Circle circle) {
-		//TODO: NOT WORKING
-		//TODO: System.out.println("Ball 226: Bumper: " + circle.toString() + " " + this);
 		return Physics.timeUntilCircleCollision(circle, new Circle(this.cartesianCenter, this.radius), this.cartesianVelocity);
 	}
 	
@@ -359,8 +327,9 @@ public class Ball {
 
 	private boolean sameParts(Ball that) {
 		return this.boardVelocity == that.boardVelocity &&
-				this.cartesianCenter == that.cartesianCenter &&
-				this.radius == that.radius;
+				this.boardCenter == that.boardCenter &&
+				this.radius == that.radius &&
+				this.name == that.name;
 	}
 	
 	@Override
@@ -371,7 +340,7 @@ public class Ball {
 	@Override
 	public int hashCode() {
 		//TODO
-		throw new RuntimeException("Not yet implemented");
+		return name.hashCode();
 	}
 
 	public String name() {
@@ -393,15 +362,18 @@ public class Ball {
 		result.trapped = false;
 		return result;
 	}
-
 	
-//	public static void main(String[] args) {
-//        JFrame frame = new JFrame("this is a ball");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        Ball toDraw = new Ball(new Vect(10,10), Vect.ZERO, 1.0);
-//        frame.add(new JLabel(new ImageIcon(toDraw.generate(20))));
-//        frame.pack();
-//        frame.setVisible(true);
-//    }
+	
+	// TODO was ballInside - deprecate
+	public boolean insideGadget(Gadget g) {
+		final double x = this.boardCenter.x();
+		final double y = this.boardCenter.y();
+		final double gX = g.position().x();
+		final double gY = g.position().y();
+		
+		return x - radius > gX && x + radius < gX + g.width() && 
+				y - radius > gY && y + radius < gY + g.height();
+			
+	}
 }
 
