@@ -3,6 +3,7 @@ package flingball;
 
 import java.awt.image.BufferedImage;
 import java.io.InvalidObjectException;
+import java.util.List;
 
 /**
  * A Gadget is an object that can be placed on a flingball board or used to construct a flingball board. 
@@ -63,7 +64,7 @@ public interface Gadget {
 	 * @return a new ball which has reflected off the Gadget
 	 * 
 	 */
-	public Ball reflectBall(Ball ball);
+	public void reflectBall(Ball ball);
 	
 	
 	/**
@@ -78,13 +79,20 @@ public interface Gadget {
 	 * 
 	 * @throws InvalidObjectException if gadget does not have a trigger;
 	 */
-	public void setAction() throws InvalidObjectException;
+	public Gadget setAction(Board.Action action); //TODO throws InvalidObjectException;
 	
 	/**
-	 * TODO Should this return an action or take the action?
+	 * 
+	 * @return The action the object takes when triggered or Action.NO_ACTION if Gadget has no action.
 	 */
-	public void action();
+	public Board.Action getAction();
 	
+	/**
+	 * 
+	 * @return A Gadget that has had it's action taken
+	 */
+	// TODO make this void?
+	public Gadget takeAction();
 	
 	/**
 	 * Generates an image of the gadget. 
@@ -106,7 +114,7 @@ public interface Gadget {
 	public boolean equals(Object that);
 	
 	public boolean ballOverlap(Ball ball);
-	
+
 	
 	
 }

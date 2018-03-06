@@ -25,6 +25,7 @@ public class Absorber implements Gadget {
 	private Deque<Ball> balls = new LinkedList<Ball>();
 	private int ballCount = 0;
 	private List<Wall> walls = new ArrayList<Wall>();
+	private Board.Action action = Board.Action.DEFAULT;
 
 	/*
 	 * AF(x, y, width, height, name) ::= An absorber (ball return mechanism) covering the rectangle bounded by (x,y)*L
@@ -47,6 +48,8 @@ public class Absorber implements Gadget {
 			endPoints.add(start);
 			endPoints.add(end);
 		}
+		System.out.println(this);
+		System.out.println("End points " + endPoints);
 		assert endPoints.size() == 4;
 	}
 	
@@ -136,15 +139,17 @@ public class Absorber implements Gadget {
 	}
 
 	@Override
-	public void setAction() {
+	public Gadget setAction(Board.Action action) {
 		// TODO Auto-generated method stub
+		Absorber result = this;
+		result.action = action;
+		return result;
 
 	}
 
 	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-
+	public Board.Action getAction() {
+		return this.action;
 	}
 
 	@Override
@@ -173,34 +178,30 @@ public class Absorber implements Gadget {
         return output;
 	}
 	
-	//TODO This mutates the absorber
-	private Ball storeBall(Ball ball) {
-		final double r = ball.getRadius();
-		final Vect newCenter = new Vect(x + width - r, -y + height - r);
-		Ball toStore = new Ball(ball.name(), newCenter, new Vect(0, 0)).trap();
-		balls.addLast(toStore);
-		return toStore;
-		
-	}
-
 	@Override
-	public Ball reflectBall(Ball ball) {
-		if (ballCount > 0) {
-			double r = ball.getRadius();
-			Vect ballPosition = new Vect(x + width - r, -y - r);
-			return new Ball(ball.name(), ballPosition, new Vect(0, -50), r);
-		}
-		else {
-			Ball toReturn = storeBall(ball);
-			ballCount++;
-			return toReturn;
-		}
-		
+	public void reflectBall(Ball ball) {
+		ball.setVelocity(new Vect(0, 0));
+		final double r = ball.getRadius();
+		ball.setPosition(new Vect(x + width - r, -y + height - r));
+		ball.trap();
+		balls.addLast(ball);
+		ballCount++;
+	}
+	
+	@Override
+	public Gadget takeAction() {
+		Ball toFire = balls.removeFirst();
+		toFire.release();
+		toFire.setVelocity(new Vect(0, -50));
+		double r = toFire.getRadius();
+		toFire.setPosition(new Vect(x + width - r, -y - r));
+		ballCount--;
+		return this;
 	}
 	
 	@Override
 	public String toString() {
-		return "Absorber{" + this.name + " " + this.position() + "}";
+		return "Absorber{" + this.name + " " + this.position() + " width=" + this.width + " height=" + this.height() + this.balls + "}";
 	}
 	
 	@Override
@@ -221,6 +222,8 @@ public class Absorber implements Gadget {
 	public boolean ballOverlap(Ball ball) {
 		return this.ballInside(ball);
 	}
+
+	
 	
 //	public static void main(String[] args) {
 //		Gadget toDraw = new Absorber("test", 1, 1, 10, 5);

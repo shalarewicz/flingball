@@ -35,6 +35,7 @@ public class TriangleBumper implements Gadget {
 	private String trigger = Gadget.NO_TRIGGER;
 	
 	private double reflectionCoefficient;
+	private Board.Action action = Board.Action.DEFAULT;
 	
 	public enum Orientation{
 		ZERO, NINETY, ONEEIGHTY, TWOSEVENTY
@@ -155,18 +156,43 @@ public class TriangleBumper implements Gadget {
 	}
 
 	@Override
-	public void setAction() {
-		// TODO Auto-generated method stub
-
+	public Gadget setAction(Board.Action action) {
+		// TODO check that this doesn't mutate this
+		TriangleBumper result = this;
+		result.action = action;
+		return result;
 	}
 
 	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-
+	public Board.Action getAction() {
+		return this.action;
 	}
-
+	
 	@Override
+	public Gadget takeAction() {
+		// TODO Check if this mutates this
+		TriangleBumper result = this;
+		switch (this.orientation) {
+		case ZERO:
+			result.orientation = Orientation.NINETY;
+			break;
+		case NINETY:
+			result.orientation = Orientation.TWOSEVENTY;
+			break;
+		case ONEEIGHTY:
+			result.orientation = Orientation.ONEEIGHTY;
+			break;
+		case TWOSEVENTY:
+			result.orientation = Orientation.ZERO;
+			break;
+		default:
+			throw new RuntimeException("Should never get here");
+		}
+		
+		return result;
+	}
+	
+		@Override
 	public BufferedImage generate(int L) {
 		BufferedImage output = new BufferedImage(L, L, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = (Graphics2D) output.getGraphics();
@@ -205,15 +231,15 @@ public class TriangleBumper implements Gadget {
 	}
 
 	@Override
-	public Ball reflectBall(Ball ball) {
+	public void reflectBall(Ball ball) {
 		double collisionTime = this.collisionTime(ball);
 		for (Wall wall : walls) {
 			if (wall.collisionTime(ball) == collisionTime) {
-				return wall.reflectBall(ball);
+				wall.reflectBall(ball);
 			}
 		}
 		
-		throw new RuntimeException("Should never get here. Ball did not collide with Triangle Bumper");
+	//	throw new RuntimeException("Should never get here. Ball did not collide with Triangle Bumper");
 	}
 	
 	@Override
@@ -259,4 +285,5 @@ public class TriangleBumper implements Gadget {
 	public String toString() {
 		return "Triangle Bumper{" + this.name + " " + this.position() + " " + this.orientation +"}";
 	}
+	
 }

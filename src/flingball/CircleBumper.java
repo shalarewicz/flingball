@@ -7,12 +7,13 @@ package flingball;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-
 import physics.Circle;
 import physics.Physics;
 import physics.Vect;
 
 public class CircleBumper implements Gadget {
+	
+	private static final double SPIN_RATE = 5.0;
 	/*
 	 * AF(x, y, name) ::= A circle with center x, y and radius r named name
 	 * Rep Invariant
@@ -27,6 +28,9 @@ public class CircleBumper implements Gadget {
 	private String name;
 	private double reflectionCoefficient = Gadget.REFLECTION_COEFFICIENT;
 	private final Circle bumper;
+	private Board.Action action = Board.Action.DEFAULT;
+
+	private double spin = 0;
 	
 	public CircleBumper(String name, int x, int y) {
 		this.x = x;
@@ -82,15 +86,17 @@ public class CircleBumper implements Gadget {
 	}
 
 	@Override
-	public void setAction() {
-		// TODO Auto-generated method stub
-
+	public Gadget setAction(Board.Action action) {
+		//TODO - new constructor
+		
+		CircleBumper result = this;
+		result.action = action;
+		return result;
 	}
 
 	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-
+	public Board.Action getAction() {
+		return this.action;
 	}
 
 	@Override
@@ -105,13 +111,17 @@ public class CircleBumper implements Gadget {
 	}
 
 	@Override
-	public Ball reflectBall(Ball ball) {
-		return ball.reflectCircle(this.bumper);
+	public void reflectBall(Ball ball) {
+		if (this.spin == 0) {
+			ball.reflectCircle(this.bumper);
+		} else {
+			ball.reflectRotatingCircle(this.bumper, this.spin, this.reflectionCoefficient);
+		}
 	}
 	
 	@Override
 	public String toString() {
-		return "Circle Bumper:" + this.name + " " + this.position();
+		return "Circle Bumper:" + this.name + " " + this.position() + ", spin=" + this.spin;
 	}
 	
 	@Override
@@ -131,9 +141,16 @@ public class CircleBumper implements Gadget {
 	@Override
 	public boolean ballOverlap(Ball ball) {
 		double distance = Math.sqrt(Physics.distanceSquared(ball.getBoardCenter(), this.bumper.getCenter()));
-//		System.out.println(ball.getBoardCenter() +" " + this.position());
-//		System.out.println(this + " and " + ball + " distance " + distance);
 		return distance < ball.getRadius() + this.RADIUS;
 		
+	}
+
+	@Override
+	public Gadget takeAction() {
+		CircleBumper result = this;
+		//if (result.spin == 0) {
+			result.spin = SPIN_RATE;
+		//}
+		return result;
 	}
 }

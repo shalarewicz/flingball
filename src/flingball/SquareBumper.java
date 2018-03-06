@@ -22,9 +22,13 @@ public class SquareBumper implements Gadget {
 	
 	private double reflectionCoefficient = Gadget.REFLECTION_COEFFICIENT;
 	
+	//TODO Chnage to x,y
 	private final int xAnchor, yAnchor;
 	
 	private final List<Wall> walls;
+	
+	private Board.Action action = Board.Action.DEFAULT;
+
 	/*
 	 * AF(name, xAnchor, yAnchor) ::= A square bumper at (xAnchor, yAnchor) on a flingBall board. 
 	 * Rep Invariant
@@ -60,6 +64,23 @@ public class SquareBumper implements Gadget {
 		this.walls = new ArrayList<Wall>(Arrays.asList(top, bottom, left, right));
 		this.checkRep();
 		
+	}
+	
+	public SquareBumper(String name, Vect position) {
+		this.name = name;
+		int x = (int) position.x();
+		int y = (int) -position.y();
+		this.xAnchor = x;
+		this.yAnchor = y;
+		
+		//Bounding walls
+		final Wall top = new Wall(name + " top", x, - y, x + 1, -y);
+		final Wall bottom = new Wall(name + " bottom", x, -y-1, x+1, -y-1);
+		final Wall left = new Wall(name + " left", x, - y, x, -y-1);
+		final Wall right = new Wall(name + " right", x+1, -y, x+1, -y-1);
+		
+		this.walls = new ArrayList<Wall>(Arrays.asList(top, bottom, left, right));
+		this.checkRep();
 	}
 
 	@Override
@@ -108,16 +129,15 @@ public class SquareBumper implements Gadget {
 	}
 
 	@Override
-	public void setAction() {
+	public Gadget setAction(Board.Action action) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Not Yet Implemented");
 
 	}
 
 	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-		throw new RuntimeException("Not Yet Implemented");
+	public Board.Action getAction() {
+		return this.action;
 
 	}
 
@@ -135,15 +155,14 @@ public class SquareBumper implements Gadget {
 	}
 
 	@Override
-	public Ball reflectBall(Ball ball) {
+	public void reflectBall(Ball ball) {
 		double collisionTime = this.collisionTime(ball);
 		for (Wall wall : walls) {
 			if (wall.collisionTime(ball) == collisionTime) {
-				return wall.reflectBall(ball);
+				wall.reflectBall(ball);
 			}
 		}
-		 
-		throw new RuntimeException("Should never get here. Ball did not collide with SquareBumper");
+		//throw new RuntimeException("Should never get here. Ball did not collide with SquareBumper");
 	}
 	
 	
@@ -179,4 +198,10 @@ public class SquareBumper implements Gadget {
 		return x - radius > aX && x + radius < aX + this.width() && 
 				y - radius > aY && y + radius < aY + this.height();
 	}
+
+	@Override
+	public Gadget takeAction() {
+		return this;
+	}
+
 }

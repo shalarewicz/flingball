@@ -42,7 +42,7 @@ public class BoardParser {
 	private enum BoardGrammar {
 		BOARD, COMMENT, COMMAND, BALL, BUMPER, SQUAREBUMPER, CIRCLEBUMPER, 
 		TRIANGLEBUMPER, INTEGER, FLOAT, NAME, WHITESPACE, ORIENTATION, FRICTION2, FRICTION1, 
-		GRAVITY, BOARDNAME, ABSORBER
+		GRAVITY, BOARDNAME, ABSORBER, ACTION, ACTIONTOTAKE
 	}
 
 	private static Parser<BoardGrammar> parser = makeParser();
@@ -158,13 +158,54 @@ public class BoardParser {
             					throw new RuntimeException("Should never get here");
             				}
             			}
-            			case ABSORBER:{
+            			case ABSORBER: {
             				String name = greatGrandChildren.get(0).text();
             				int x = Integer.parseInt(greatGrandChildren.get(1).text());
             				int y = Integer.parseInt(greatGrandChildren.get(2).text());
             				int width = Integer.parseInt(greatGrandChildren.get(3).text());
             				int height = Integer.parseInt(greatGrandChildren.get(4).text());
             				board = board.addGadget(new Absorber(name, x, y, width, height));
+            				continue;
+            			}
+            			case ACTION: {
+            				String trigger = greatGrandChildren.get(0).text();
+            				String action = greatGrandChildren.get(1).text();
+            				Board.Action actionToTake = Board.Action.DEFAULT;
+        					switch (greatGrandChildren.get(1).text()) {
+        					case "FIRE_ALL":{
+        						actionToTake = Board.Action.FIRE_ALL;
+        						break;
+        					}
+        					case "ADD_BALL":{
+        						actionToTake = Board.Action.ADD_BALL;
+        						break;
+        					}
+        					case "ADD_SQUARE":{
+        						actionToTake = Board.Action.ADD_SQUARE;
+        						break;
+        					}
+        					case "ADD_CIRCLE":{
+        						actionToTake = Board.Action.ADD_CIRCLE;
+        						break;
+        					}
+        					case "ADD_TRIANGLE":{
+        						actionToTake = Board.Action.ADD_TRIANGLE;
+        						break;
+        					}
+        					case "ADD_ABSORBER":{
+        						actionToTake = Board.Action.ADD_ABSORBER;
+        						break;
+        					}
+        					case "REVERSE_BALLS":{
+        						actionToTake = Board.Action.REVERSE_BALLS;
+        						break;
+        					}
+        					default:{
+        						board.addAction(trigger, action, Board.Action.DEFAULT);;
+        						continue;
+        					}
+        					}
+            				board.addAction(trigger, actionToTake);
             				continue;
             			}
             			default:

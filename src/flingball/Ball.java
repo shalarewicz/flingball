@@ -112,7 +112,7 @@ public class Ball {
 	 */
 	
 	//TODO Ball should be mutable? otherwise need to remove and add balls to the board each time they change
-	public Ball move(double time) {
+	public void move(double time) {
 		// distance = position + velocity * t
 		Vect newCenter = this.cartesianVelocity.times(time).plus(this.cartesianCenter);
 		
@@ -127,7 +127,6 @@ public class Ball {
 		this.cartesianCenter = roundedCenter;
 		this.boardCenter = getBoardCenterFromCartesianCenter(roundedCenter);
 		this.anchor = getAnchorFromCartesianCenter(roundedCenter);
-		return new Ball(this.name, getBoardCenterFromCartesianCenter(roundedCenter), this.boardVelocity, this.radius);
 	}
 	
 	/**
@@ -139,7 +138,7 @@ public class Ball {
 	 * @param mu2 - Coefficient of friction for the flingball board in L^-1
 	 * @return A new ball in the end location moving with velocity affected by gravity and friction
 	 */
-	public Ball move(double time, double gravity, double mu, double mu2) {
+	public void move(double time, double gravity, double mu, double mu2) {
 		// let a = acceleration
 		// displacement = position + velocity * t + at^2
 		// delta_v = at
@@ -170,18 +169,33 @@ public class Ball {
 		Vect newCartesianCenter = this.cartesianCenter.plus(displacement);
 		
 		//Round displacement to avoid floating point errors which lead to ball being off the board. 
-		DecimalFormat df = new DecimalFormat("#.##");
+		DecimalFormat df = new DecimalFormat("#.##########");
 		df.setRoundingMode(RoundingMode.HALF_EVEN);
 		
 		double newCX = Double.parseDouble(df.format(newCartesianCenter.x()));
 		double newCY = Double.parseDouble(df.format(newCartesianCenter.y()));
 		
-		Vect correctedCartesianCenter = new Vect(newCX, newCY);
+		Vect correctedCartesianCenter = roundedVector(new Vect(newCX, newCY), this.radius);
 		
 		Vect newBoardCenter = getBoardCenterFromCartesianCenter(correctedCartesianCenter);
+		this.cartesianCenter = correctedCartesianCenter;
+		this.boardCenter = newBoardCenter;
+		this.cartesianVelocity = newVelocity;
+		this.boardVelocity = convertVelocity(newVelocity);
+		this.anchor = getAnchorFromCartesianCenter(correctedCartesianCenter);
 		
-		return new Ball(this.name, newBoardCenter, getBoardCenterFromCartesianCenter(newVelocity), this.radius);
+	}
+	
+	private static Vect roundedVector(Vect v, double radius) {
+		double vx = v.x();
+		double vy = v.y();
 		
+		if (vx - radius < 0.0) vx = radius;
+		if (vx + radius> 20.0) vx = 20 - radius;
+		if (vy + radius > 0.0) vx = -radius;
+		if (vy - radius < -20.0) vx = -20 + radius;
+		
+		return new Vect (vx, vy);
 	}
 	
 	
@@ -239,8 +253,10 @@ public class Ball {
 	 * @param v The new velocity of the ball
 	 * @return A ball with velocity v
 	 */
-	public Ball setVelocity(Vect v) {
-		return new Ball(this.name, this.boardCenter, v, this.radius);
+	public void setVelocity(Vect v) {
+		this.boardVelocity = v;
+		this.cartesianVelocity = getCartesianCenterFromBoardCenter(v);
+		//return new Ball(this.name, this.boardCenter, v, this.radius);
 	}
 	
 	/**
@@ -287,8 +303,10 @@ public class Ball {
 	 * @param line with which the ball is colliding
 	 * @return A ball that has collided with the line. 
 	 */
-	public Ball reflectLine(LineSegment line) {
-		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity)), this.radius);
+	public void reflectLine(LineSegment line) {
+		this.cartesianVelocity = Physics.reflectWall(line, this.cartesianVelocity);
+		this.boardVelocity = convertVelocity(this.cartesianVelocity);
+		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity)), this.radius);
 	}
 	
 	/**
@@ -297,8 +315,10 @@ public class Ball {
 	 * @param reflectionCoeff - Coefficient of reflection for the line
 	 * @return A ball which has collided with the line
 	 */
-	public Ball reflectLine(LineSegment line, Double reflectionCoeff) {
-		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity, reflectionCoeff)), this.radius);
+	public void reflectLine(LineSegment line, Double reflectionCoeff) {
+		this.cartesianVelocity = Physics.reflectWall(line, this.cartesianVelocity, reflectionCoeff);
+		this.boardVelocity = convertVelocity(this.cartesianVelocity);
+		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity, reflectionCoeff)), this.radius);
 	}
 	
 	/**
@@ -306,8 +326,10 @@ public class Ball {
 	 * @param circle circle with which the ball is colliding
 	 * @return A ball that has collided with the circle
 	 */
-	public Ball reflectCircle(Circle circle) {
-		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity)), this.radius);
+	public void reflectCircle(Circle circle) {
+		this.cartesianVelocity = Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity);
+		this.boardVelocity = convertVelocity(this.cartesianVelocity);
+		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity)), this.radius);
 	}
 	
 	/**
@@ -316,8 +338,17 @@ public class Ball {
 	 * @param reflectionCoeff - Coefficient of reflection for the circle
 	 * @return A ball which has collided with the circle
 	 */
-	public Ball reflectCircle(Circle circle, Double reflectionCoeff) {
-		return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity, reflectionCoeff)), this.radius);
+	public void reflectCircle(Circle circle, Double reflectionCoeff) {
+		this.cartesianVelocity = Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity, reflectionCoeff);
+		this.boardVelocity = convertVelocity(this.cartesianVelocity);
+	
+		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity, reflectionCoeff)), this.radius);
+	}
+	
+	public void reflectRotatingCircle(Circle circle, double angularVelocity, double relectionCoeff) {
+		//TODO ASSERT velocity < 200;
+		this.cartesianVelocity = Physics.reflectRotatingCircle(circle, circle.getCenter(), angularVelocity, new Circle(this.cartesianCenter, this.radius), this.cartesianVelocity, 1.0);
+		this.boardVelocity = convertVelocity(this.cartesianVelocity);
 	}
 	
 	@Override
@@ -351,16 +382,12 @@ public class Ball {
 		return this.trapped ;
 	}
 	
-	public Ball trap() {
-		Ball result = this;
-		result.trapped = true;
-		return result;
+	public void trap() {
+		this.trapped = true;
 	}
 	
-	public Ball release() {
-		Ball result = this;
-		result.trapped = false;
-		return result;
+	public void release() {
+		this.trapped = false;
 	}
 	
 	
@@ -375,5 +402,12 @@ public class Ball {
 				y - radius > gY && y + radius < gY + g.height();
 			
 	}
+
+	public void setPosition(Vect vect) {
+		this.boardCenter = vect;
+		this.cartesianCenter = getCartesianCenterFromBoardCenter(this.boardCenter);
+		this.anchor = getAnchorFromBoardCenter(this.boardCenter);
+	}
+
 }
 

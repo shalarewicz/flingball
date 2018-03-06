@@ -19,7 +19,6 @@ public class Wall implements Gadget {
 	
 	private final String name;
 	
-	
 	public Wall(String name, double x1, double y1, double x2, double y2) {
 		this.x1 = x1;
 		this.x2 = x2;
@@ -135,20 +134,18 @@ public class Wall implements Gadget {
 
 	@Override
 	public String getTrigger() {
-		// TODO Auto-generated method stub
-		return null;
+		return Gadget.NO_TRIGGER;
 	}
 
 	@Override
-	public void setAction() {
-		// TODO Auto-generated method stub
-
+	public Gadget setAction(Board.Action action) {
+		//TODO throw and exception?
+		return this;
 	}
 
 	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-
+	public Board.Action getAction() {
+		return Board.Action.DEFAULT;
 	}
 
 	@Override
@@ -158,26 +155,24 @@ public class Wall implements Gadget {
 	}
 
 	@Override
-	public Ball reflectBall(Ball ball) {
+	public void reflectBall(Ball ball) {
 		final double timeToWall = ball.timeUntilLineCollision(this.wall);
 		final double timeToc1 = ball.timeUntilCircleCollision(c1);
 		final double timeToc2 = ball.timeUntilCircleCollision(c2);
 		
 		double collisionTime = Math.min(timeToWall, Math.min(timeToc1, timeToc2));
-		final Ball newBall;
 		
 		if (collisionTime == timeToWall) {
-			newBall = ball.reflectLine(this.wall, this.REFLECTION_COEFFICIENT);	
+			ball.reflectLine(this.wall, this.REFLECTION_COEFFICIENT);	
 		}
 		else if (collisionTime == timeToc1) {
-			newBall = ball.reflectCircle(c1, this.REFLECTION_COEFFICIENT);
+			ball.reflectCircle(c1, this.REFLECTION_COEFFICIENT);
 		}
 		else {
-			newBall = ball.reflectCircle(c2, this.REFLECTION_COEFFICIENT);
+			ball.reflectCircle(c2, this.REFLECTION_COEFFICIENT);
 			
 		}
 		
-		return newBall;
 	}
 	
 	@Override
@@ -194,5 +189,9 @@ public class Wall implements Gadget {
 		System.out.println(perpendicularPoint);
 		return Physics.distanceSquared(ballCenter, perpendicularPoint) >= 0;
 	}
-	
+
+	@Override
+	public Gadget takeAction() {
+		return this;
+	}
 }
