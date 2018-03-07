@@ -30,7 +30,8 @@ public class TriangleBumper implements Gadget {
 	
 	private final int x, y;
 	private Orientation orientation = Orientation.ZERO;
-	private final List<Wall> walls;
+	//TODO Walls was final
+	private List<Wall> walls;
 	private String name;
 	private String trigger = Gadget.NO_TRIGGER;
 	
@@ -87,8 +88,7 @@ public class TriangleBumper implements Gadget {
 			walls = new ArrayList<Wall>(Arrays.asList(side1, side2, hypotenuse));
 			checkRep();
 			return;
-		}
-		
+		}		
 		case ONEEIGHTY: {
 			final Wall side1 = new Wall(name + " side1", x+1, -y-1, x+1, -y);
 			final Wall side2 = new Wall(name + " side2", x+1, -y-1, x, -y-1);
@@ -171,25 +171,28 @@ public class TriangleBumper implements Gadget {
 	@Override
 	public Gadget takeAction() {
 		// TODO Check if this mutates this
-		TriangleBumper result = this;
+		Orientation orientation;
 		switch (this.orientation) {
 		case ZERO:
-			result.orientation = Orientation.NINETY;
+			orientation = Orientation.NINETY;
 			break;
 		case NINETY:
-			result.orientation = Orientation.TWOSEVENTY;
+			orientation = Orientation.TWOSEVENTY;
 			break;
 		case ONEEIGHTY:
-			result.orientation = Orientation.ONEEIGHTY;
+			orientation = Orientation.ONEEIGHTY;
 			break;
 		case TWOSEVENTY:
-			result.orientation = Orientation.ZERO;
+			orientation = Orientation.ZERO;
 			break;
 		default:
 			throw new RuntimeException("Should never get here");
 		}
 		
-		return result;
+		TriangleBumper newTriangle = new TriangleBumper(this.name, this.x, -this.y, orientation);
+		this.walls = newTriangle.walls;
+		this.orientation = newTriangle.orientation;
+		return this;
 	}
 	
 		@Override
@@ -284,6 +287,13 @@ public class TriangleBumper implements Gadget {
 	@Override
 	public String toString() {
 		return "Triangle Bumper{" + this.name + " " + this.position() + " " + this.orientation +"}";
+	}
+	
+	@Override
+	public void setCoverage(int[][] coverage) {
+		int x = (int) this.position().x();
+		int y = (int) this.position().y();
+		coverage[y][x] = 1;
 	}
 	
 }

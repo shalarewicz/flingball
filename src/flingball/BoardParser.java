@@ -118,7 +118,7 @@ public class BoardParser {
             					final int y = Integer.parseInt(bumperProperties.get(2).text());
             					
             					Gadget bumper = new SquareBumper(name, x, y);
-            					board = board.addGadget(bumper);
+            					board.addGadget(bumper);
             					continue;
             				}
             				case CIRCLEBUMPER: // name=NAME x=INTEGER y=INTEGER
@@ -128,7 +128,7 @@ public class BoardParser {
             					final int y = Integer.parseInt(bumperProperties.get(2).text());
             					
             					Gadget bumper = new CircleBumper(name, x, y);
-            					board = board.addGadget(bumper);
+            					board.addGadget(bumper);
             					continue;
             				}
             				case TRIANGLEBUMPER: // name=NAME x=INTEGER y=INTEGER (orientation=0|90|180|270)?
@@ -150,7 +150,7 @@ public class BoardParser {
             					else {            	        	
             						bumper = new TriangleBumper(name, x, y, Orientation.ZERO);
             					}
-            					board = board.addGadget(bumper);
+            					board.addGadget(bumper);
             					continue;
             				}
             				default:
@@ -164,7 +164,7 @@ public class BoardParser {
             				int y = Integer.parseInt(greatGrandChildren.get(2).text());
             				int width = Integer.parseInt(greatGrandChildren.get(3).text());
             				int height = Integer.parseInt(greatGrandChildren.get(4).text());
-            				board = board.addGadget(new Absorber(name, x, y, width, height));
+            				board.addGadget(new Absorber(name, x, y, width, height));
             				continue;
             			}
             			case ACTION: {
@@ -201,6 +201,7 @@ public class BoardParser {
         						break;
         					}
         					default:{
+        						System.out.println("Trigger: " + trigger + ", action: " + action);
         						board.addAction(trigger, action, Board.Action.DEFAULT);;
         						continue;
         					}

@@ -48,8 +48,8 @@ public class Absorber implements Gadget {
 			endPoints.add(start);
 			endPoints.add(end);
 		}
-		System.out.println(this);
-		System.out.println("End points " + endPoints);
+//		System.out.println(this);
+//		System.out.println("End points " + endPoints);
 		assert endPoints.size() == 4;
 	}
 	
@@ -101,6 +101,7 @@ public class Absorber implements Gadget {
 		throw new RuntimeException("Not supported");
 	}
 
+	//Checking Absorber{Absorber<13.0,5.0> <13.0,5.0> width=2 height=2[]} with Ball{name=ball4, center=<13.8,5.5>, velocity=<20.0,75.0>, radius=0.25}
 	private boolean ballInside(Ball ball) {
 		final double x = ball.getBoardCenter().x();
 		final double y = ball.getBoardCenter().y();
@@ -108,8 +109,8 @@ public class Absorber implements Gadget {
 		final double aX = this.position().x();
 		final double aY = this.position().y();
 		
-		return x - radius > aX && x + radius < aX + this.width && 
-				y - radius > aY && y + radius < aY + this.height;
+		return (x - radius >= aX) && (x + radius <= aX + this.width) && 
+				(y - radius >= aY) && (y + radius <= aY + this.height);
 		
 	}
 	
@@ -220,7 +221,44 @@ public class Absorber implements Gadget {
 
 	@Override
 	public boolean ballOverlap(Ball ball) {
-		return this.ballInside(ball);
+		final double x = ball.getBoardCenter().x();
+		final double y = ball.getBoardCenter().y();
+		final double radius = ball.getRadius();
+		final double aX = this.position().x();
+		final double aY = this.position().y();
+		
+		return ((x + radius > aX && x + radius < aX + this.width) ||
+				(x - radius > aX && x - radius < aX + this.width) ) &&
+				((y + radius > aY && y + radius < aY + this.height) ||
+				(y - radius > aY && y - radius < aY + this.height));
+		
+		
+	}
+	
+	@Override
+	public void setCoverage(int[][] coverage) {
+		int x = (int) this.position().x();
+		int y = (int) this.position().y();
+		
+		//System.out.println("Setting " + this);
+		
+		for (int j = y; j < y + this.height; j++) {
+			for (int i = x; i < x + this.width; i++) {
+			coverage[j][i] = 1;
+		//	coverage[j][x] = 1;
+		//	System.out.println(j + ", " + i);
+			}
+		//	System.out.println(j + ", " + x);
+		}
+//		for (int i = x; i < x + this.width; i++) {
+//			coverage[y][i] = 1;
+//			System.out.println(y + ", " + i);
+//		}
+//		for (int j = y; j < y + this.height; j++) {
+//			coverage[j][x] = 1;
+//			System.out.println(j + ", " + x);
+//		}
+		coverage[y - 1][x + this.width() - 1] = 1;
 	}
 
 	

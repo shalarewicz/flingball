@@ -160,7 +160,14 @@ public class Ball {
 		// Net change in velocity = a*t
 		Vect deltaV = deltaVGravity.plus(deltaVFriction);
 		
+		DecimalFormat vf = new DecimalFormat("#.##");
+		vf.setRoundingMode(RoundingMode.HALF_UP);
 		Vect newVelocity = this.cartesianVelocity.plus(deltaV);
+		
+		double newVx = Double.parseDouble(vf.format(newVelocity.x()));
+		double newVy = Double.parseDouble(vf.format(newVelocity.y()));
+		
+		Vect correctedVelocity = new Vect(newVx, newVy);
 		
 		
 		// displacement = v_i*t + a*t*t = v_i*t + deltaV * t
@@ -169,8 +176,8 @@ public class Ball {
 		Vect newCartesianCenter = this.cartesianCenter.plus(displacement);
 		
 		//Round displacement to avoid floating point errors which lead to ball being off the board. 
-		DecimalFormat df = new DecimalFormat("#.##########");
-		df.setRoundingMode(RoundingMode.HALF_EVEN);
+		DecimalFormat df = new DecimalFormat("#.##");
+		df.setRoundingMode(RoundingMode.HALF_UP);
 		
 		double newCX = Double.parseDouble(df.format(newCartesianCenter.x()));
 		double newCY = Double.parseDouble(df.format(newCartesianCenter.y()));
@@ -180,20 +187,21 @@ public class Ball {
 		Vect newBoardCenter = getBoardCenterFromCartesianCenter(correctedCartesianCenter);
 		this.cartesianCenter = correctedCartesianCenter;
 		this.boardCenter = newBoardCenter;
-		this.cartesianVelocity = newVelocity;
-		this.boardVelocity = convertVelocity(newVelocity);
+		this.cartesianVelocity = correctedVelocity;
+		this.boardVelocity = convertVelocity(correctedVelocity);
 		this.anchor = getAnchorFromCartesianCenter(correctedCartesianCenter);
 		
 	}
 	
+	//TODO both moves
 	private static Vect roundedVector(Vect v, double radius) {
 		double vx = v.x();
 		double vy = v.y();
 		
 		if (vx - radius < 0.0) vx = radius;
 		if (vx + radius> 20.0) vx = 20 - radius;
-		if (vy + radius > 0.0) vx = -radius;
-		if (vy - radius < -20.0) vx = -20 + radius;
+		if (vy + radius > 0.0) vy = -radius;
+		if (vy - radius < -20.0) vy = -20 + radius;
 		
 		return new Vect (vx, vy);
 	}

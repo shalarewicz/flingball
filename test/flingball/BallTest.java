@@ -30,7 +30,7 @@ public class BallTest {
 		//TODO
 		Ball start = new Ball("test name", new Vect(0,0), new Vect(Angle.DEG_90, 50), 1.0);
 		while (start.getBoardCenter().y() < 20) {
-			start = start.move(0.1, 25.0, 0.025, 0.025);
+			start.move(0.1, 25.0, 0.025, 0.025);
 		}
 	}
 	

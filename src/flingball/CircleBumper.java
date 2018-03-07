@@ -153,4 +153,11 @@ public class CircleBumper implements Gadget {
 		//}
 		return result;
 	}
+	
+	@Override
+	public void setCoverage(int[][] coverage) {
+		int x = (int) this.position().x();
+		int y = (int) this.position().y();
+		coverage[y][x] = 1;
+	}
 }

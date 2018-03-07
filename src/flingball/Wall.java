@@ -194,4 +194,10 @@ public class Wall implements Gadget {
 	public Gadget takeAction() {
 		return this;
 	}
+	
+	@Override
+	public void setCoverage(int[][] coverage) {
+		
+		//TODO do nothing
+	}
 }

@@ -43,6 +43,9 @@ public class Board extends JPanel{
 
 	public static final double FRICTION_2 = 0.025;
 	
+	public static int BALL_LIMIT = 20;
+	public static int GADGET_LIMIT = 400;
+	
 	
 	private final String NAME;
 	private final int HEIGHT = 20;
@@ -60,6 +63,9 @@ public class Board extends JPanel{
 	private List<Ball> balls = new ArrayList<Ball>();
 	private Map<Gadget, List<Gadget>> triggers = new HashMap<Gadget, List<Gadget>>();
 	private Map<Gadget, List<Action>> boardTriggers = new HashMap<Gadget, List<Action>>();
+	
+	private int[][] gadgetCoverage = new int[WIDTH][HEIGHT];
+	
 	
 	//TODO Allow user to set this field
 	final int L = 40;
@@ -101,6 +107,17 @@ public class Board extends JPanel{
 			assert position.y() >= 0;
 			for (Ball ball : balls) {
 				if (!ball.isTrapped()) {
+					if (gadget.ballOverlap(ball)) {
+//						System.out.println("Gadget " + gadget);
+//						System.out.println("Ball " + ball);
+//						System.out.println(this);
+						for (int i = 0; i < this.gadgetCoverage.length; i++) {
+							for (int j = 0; j < this.gadgetCoverage[i].length; j++) {
+								//System.out.print(this.gadgetCoverage[i][j]);
+							}
+						//	System.out.println();
+						}
+					}
 					assert !gadget.ballOverlap(ball);
 				}
 			}
@@ -110,13 +127,13 @@ public class Board extends JPanel{
 			final double radius = ball.getRadius();
 			final double cx = ball.getBoardCenter().x();
 			final double cy = ball.getBoardCenter().y();
-			System.out.println(cx - radius);
+		//	System.out.println(cx - radius);
 			assert cx - radius >= 0;
-			System.out.println(cx + radius);
+		//	System.out.println(cx + radius);
 			assert cx + radius <= WIDTH;
-			System.out.println(cy - radius);
+		//	System.out.println(cy - radius);
 			assert cy - radius >= 0;
-			System.out.println(cy + radius);
+		//	System.out.println(cy + radius);
 			assert cy + radius <= HEIGHT;
 			
 		}
@@ -165,20 +182,48 @@ public class Board extends JPanel{
 	 * @param gadget gadget to be added to the board
 	 * @return a board with the added gadget. If the Gadget already exists on the board it will overwrite the existing gadget
 	 */
-	public Board addGadget(Gadget gadget) {
+	public void addGadget(Gadget gadget) {
 		
-		Map<Gadget, List<Gadget>> newTriggers = new HashMap<Gadget, List<Gadget>>(this.triggers);
-
-		List<Gadget> newGadgets = new ArrayList<Gadget>(this.gadgets);
-		newGadgets.add(gadget);
+//		Map<Gadget, List<Gadget>> newTriggers = new HashMap<Gadget, List<Gadget>>(this.triggers);
+//
+//		List<Gadget> newGadgets = new ArrayList<Gadget>(this.gadgets);
+//		newGadgets.add(gadget);
+		this.gadgets.add(gadget);
 		
-		Board newBoard = new Board(newGadgets, newTriggers, this.boardTriggers, this.balls);
-		newBoard.gravity = this.gravity;
-		newBoard.friction1 = this.friction1;
-		newBoard.friction2 = this.friction2;
-		newBoard.checkRep();
+//		Board newBoard = new Board(newGadgets, newTriggers, this.boardTriggers, this.balls);
+//		newBoard.gravity = this.gravity;
+//		newBoard.friction1 = this.friction1;
+//		newBoard.friction2 = this.friction2;
+		//newBoard.checkRep();
 		
-		return newBoard;
+		gadget.setCoverage(this.gadgetCoverage);
+//		int x = (int) gadget.position().x();
+//		int y = (int) gadget.position().y();
+//		for (int i = x; i < x + gadget.width(); i++) {
+//			this.gadgetCoverage[y][i] = 1;
+//		}
+//		for (int j = y; j < y + gadget.height(); j++) {
+//			this.gadgetCoverage[j][x] = 1;
+//		}
+//		
+//		//TODO Don't use instanceof
+//		if (gadget instanceof Absorber) {
+//			System.out.println("adding " + gadget);
+//			//this.gadgetCoverage[y - 1][x + gadget.width() - 1] = 1;
+//			for (int i = 0; i < this.gadgetCoverage.length; i++) {
+//				for (int j = 0; j < this.gadgetCoverage[i].length; j++) {
+//					System.out.print(this.gadgetCoverage[i][j]);
+//				}
+//				System.out.println();
+//			}
+//		}
+		
+		//newBoard.gadgetCoverage = this.gadgetCoverage;
+			
+		
+		checkRep();
+	//	return newBoard;
+		
 		
 	}
 	
@@ -298,19 +343,22 @@ public class Board extends JPanel{
 		
 		if (collisionTime <= time && nextGadget != NO_COLLISION) {
 			ball.move(collisionTime, this.gravity, this.friction1, this.friction2);
+			checkRep();
 			nextGadget.reflectBall(ball);
 			if (triggers.containsKey(nextGadget)) {
 				for (Gadget gadget : triggers.get(nextGadget)) {
-					this.takeAction(gadget, gadget.getAction());
+					//System.out.println("taking " + gadget.getAction() + " triggered by " + nextGadget);
+					this.takeAction(gadget, gadget.getAction(), ball);
 				}
 			}
 			if (boardTriggers.containsKey(nextGadget)) {
 				for (Action action : boardTriggers.get(nextGadget)) {
 					//System.out.println(action);
-					this.takeAction(nextGadget, action);
+					this.takeAction(nextGadget, action, ball);
 				}
 			}
 			if (ball.getVelocity().length() > 0.0 && collisionTime > 0) {
+				// TODO What about simultanewous collisons
 				moveOneBall(ball, time - collisionTime);
 			}
 		} else {
@@ -318,61 +366,86 @@ public class Board extends JPanel{
 		}
 	}
 	
-	private void takeAction(Gadget gadget, Board.Action action) {
+	private boolean checkBallOverlaps(Gadget g) {
+		for (Ball ball : this.balls) {
+			if (g.ballOverlap(ball)) {
+				//System.out.println("Bad Checking " + this + " with " + ball);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private void takeAction(Gadget gadget, Board.Action action, Ball currentBall) {
 		switch (action) {
 		case ADD_BALL:{
-			// TODO Add a random ball to this board
+			if (balls.size() <= BALL_LIMIT) {
+				this.addRandomBall(currentBall);
+			}
+			break;
+			
 		}
 		case ADD_SQUARE:{
-			//TODO CHECK REP
-			Gadget newGadget = addSquare(findEmptySpot(1,1));
-			for (Ball ball : this.balls) {
-				if (newGadget.ballOverlap(ball)) {
-					takeAction(gadget, action);
+			if (this.gadgets.size() <= GADGET_LIMIT) {
+				//System.out.println(this.gadgets.size() );
+				Gadget newGadget = addSquare(findEmptySpot(0, 0, 1,1));
+				if (checkBallOverlaps(newGadget)) {
+					System.out.println("Good check " + newGadget + " on balls " + this.balls + " triggered by " + currentBall);
+					this.addGadget(newGadget);
+				}
+				else {
+					takeAction(gadget, action, currentBall);
 				}
 			}
-			this.gadgets.add(newGadget);
-			checkRep();
 			break;
 		}
 		case ADD_CIRCLE:{
-			Gadget newGadget = addCircle(findEmptySpot(1,1));
-			for (Ball ball : this.balls) {
-				if (newGadget.ballOverlap(ball)) {
-					takeAction(gadget, action);
+			if (this.gadgets.size() <= GADGET_LIMIT) {
+				Gadget newGadget = addCircle(findEmptySpot(0, 0, 1, 1));
+				for (Ball ball : this.balls) {
+					if (newGadget.ballOverlap(ball)) {
+						takeAction(gadget, action, currentBall);
+					}
 				}
+				this.addGadget(newGadget);
 			}
-			this.gadgets.add(newGadget);
-			checkRep();
 			break;
 		}
 		case ADD_TRIANGLE:{
-			Gadget newGadget = addTriangle(findEmptySpot(1,1));
-			for (Ball ball : this.balls) {
-				if (newGadget.ballOverlap(ball)) {
-					takeAction(gadget, action);
+			if (this.gadgets.size() <= GADGET_LIMIT) {
+				Gadget newGadget = addTriangle(findEmptySpot(0, 0, 1, 1));
+				for (Ball ball : this.balls) {
+					if (newGadget.ballOverlap(ball)) {
+						takeAction(gadget, action, currentBall);
+					}
 				}
+				this.addGadget(newGadget);
 			}
-			this.gadgets.add(newGadget);
-			checkRep();
 			break;
 		}
 		case ADD_ABSORBER:{
-			//TODO Can't put absorber in top row
-			int randomWidth = (int) (Math.random() * 5 + 1);
-			Gadget newGadget = addAbsorber(findEmptySpot(randomWidth, 1), randomWidth, 1);
-			for (Ball ball : this.balls) {
-				if (newGadget.ballOverlap(ball)) {
-					takeAction(gadget, action);
+			if (this.gadgets.size() <= GADGET_LIMIT) {
+				//TODO Can't put absorber in top row
+				int randomWidth = (int) (Math.random() * 5 + 1);
+				int randomHeight = (int) (Math.random() * 2 + 1);
+				Gadget newGadget = addAbsorber(findEmptySpot(0, 1, randomWidth, randomHeight), randomWidth, randomHeight);
+				if (checkBallOverlaps(newGadget)) {
+					System.out.println("Good ball check on " + newGadget + " and " + this.balls);
+					this.addGadget(newGadget);
+					this.triggers.put(newGadget, new ArrayList<Gadget>(Arrays.asList(newGadget)));
 				}
+				else {
+					takeAction(gadget, action, currentBall);
+				}
+//				System.out.println("Adding " + newGadget);
+//				System.out.println("Balls are " + this.balls);
 			}
-			this.gadgets.add(newGadget);
-			this.triggers.put(newGadget, new ArrayList<Gadget>(Arrays.asList(newGadget)));
 			checkRep();
 			break;
 		}
 		case REVERSE_BALLS:{
 			this.reverseAll();
+			currentBall.setVelocity(currentBall.getVelocity().rotateBy(Angle.DEG_180));
 			checkRep();
 			break;
 		}
@@ -389,6 +462,25 @@ public class Board extends JPanel{
 		default:
 			throw new RuntimeException("Should never get here");
 		}
+	}
+
+	private void addRandomBall(Ball ball) {
+		String newName = ball.name();
+		List<String> names = new ArrayList<String>();
+		for (Ball b: balls) {
+			names.add(b.name());
+		}
+		for (int i = 1; i < 20; i++) {
+			newName = newName + i;
+			if (names.add(newName)) {
+				break;
+			}
+		}
+		Ball newBall = new Ball(newName, ball.getBoardCenter(), new Vect(Math.random()*100, Math.random()*100), ball.getRadius());
+		this.addBall(newBall);
+		//System.out.println(newBall.getBoardCenter() + " from " + ball.getBoardCenter());
+		
+		checkRep();
 	}
 
 	@Override
@@ -443,7 +535,7 @@ public class Board extends JPanel{
 	
 	private void reverseAll() {
 		for (Ball ball : balls) {
-			ball.setPosition(ball.getVelocity().rotateBy(Angle.DEG_180));
+			ball.setVelocity(ball.getVelocity().rotateBy(Angle.DEG_180));
 		}
 	}
 	
@@ -485,37 +577,39 @@ public class Board extends JPanel{
 		return new Absorber("Absorber"+ position, (int) position.x(), (int) position.y(), width, height);
 	}
 	
-	public Vect findEmptySpot(int width, int height) {
-		int[][] positions = new int [20][20];
-		for (Gadget gadget : gadgets) {
-			int x = (int) gadget.position().x();
-			int y = (int) gadget.position().y();
-			for (int i = x; i < x + gadget.width(); i++) {
-				positions[y][i] = 1;
-			}
-			for (int j = y; j < y + gadget.height(); j++) {
-				positions[j][x] = 1;
-			}
-			
-		}
+	public Vect findEmptySpot(int xOrigin, int yOrigin, int width, int height) {
+//		int[][] positions = new int [20][20];
+//		for (Gadget gadget : gadgets) {
+//			int x = (int) gadget.position().x();
+//			int y = (int) gadget.position().y();
+//			for (int i = x; i < x + gadget.width(); i++) {
+//				positions[y][i] = 1;
+//			}
+//			for (int j = y; j < y + gadget.height(); j++) {
+//				positions[j][x] = 1;
+//			}
+//			
+//		}
 		
 		whileloop:
 		while (true) {
-			int newY = (int) (Math.random() * 20);
-			int newX = (int) (Math.random() * 20);
+			//TODO: Do something if no empty spots
+			int newY = (int) (Math.random() * (HEIGHT - yOrigin) + yOrigin);
+			int newX = (int) (Math.random() * (WIDTH - xOrigin) + xOrigin);
 			if ((newX + width > this.WIDTH) || (newY + height > this.HEIGHT)) {
 				continue whileloop;
 			}
-			for (int i = newX; i < newX + width; i++) {
-				if (positions[newY][i] == 1) {
-					continue whileloop;
-				}
-			}
 			for (int j = newY; j < newY + height; j++) {
-				if (positions[j][newX] == 1) {
-					continue whileloop;
+				for (int i = newX; i < newX + width; i++) {
+					if (gadgetCoverage[j][i] == 1) {
+						continue whileloop;
+					}
 				}
+//				if (gadgetCoverage[j][newX] == 1) {
+//					continue whileloop;
+//				}
 			}
+			
 			
 			return new Vect (newX, newY);
 		}

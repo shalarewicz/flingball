@@ -101,6 +101,9 @@ public interface Gadget {
 	 */
 	public BufferedImage generate(int L);
 	
+	//TODO exposes the rep of Board
+	void setCoverage(int[][] coverage);
+		
 	public final static String NO_TRIGGER = "NO_TRIGGER";
 	public final static Double REFLECTION_COEFFICIENT = 1.0;
 	

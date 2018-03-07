@@ -17,8 +17,8 @@ import physics.Vect;
 
 public class BoardAnimation {
 	
-	private final long FRAME_RATE = 5;
-	private final double PLAY_RATE = 0.005;
+	private final long FRAME_RATE = 5; //TODO 5
+	private final double PLAY_RATE = 0.005; //TODO 0.005
 	/*
 	 * TODO: AF()
 	 * TODO: Rep Invariant

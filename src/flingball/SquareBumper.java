@@ -25,6 +25,9 @@ public class SquareBumper implements Gadget {
 	//TODO Chnage to x,y
 	private final int xAnchor, yAnchor;
 	
+	private final int WIDTH = 1;
+	private final int HEIGHT = 1;
+	
 	private final List<Wall> walls;
 	
 	private Board.Action action = Board.Action.DEFAULT;
@@ -95,12 +98,12 @@ public class SquareBumper implements Gadget {
 	
 	@Override 
 	public int height() {
-		return 1;
+		return this.HEIGHT;
 	}
 	
 	@Override 
 	public int width() {
-		return 1;
+		return this.WIDTH;
 	}
 
 	@Override
@@ -195,13 +198,36 @@ public class SquareBumper implements Gadget {
 		final double aX = this.position().x();
 		final double aY = this.position().y();
 		
-		return x - radius > aX && x + radius < aX + this.width() && 
-				y - radius > aY && y + radius < aY + this.height();
+//		//TODO this is backwards
+//		if (x - radius < aX && x + radius > aX + this.width() && 
+//				y - radius < aY && y + radius > aY + this.height()) System.out.println(this + " overlaps " + ball);
+//		return x - radius < aX && x + radius > aX + this.width() && 
+//				y - radius < aY && y + radius > aY + this.height();
+				
+				
+		if (((x + radius > aX && x + radius < aX + WIDTH) ||
+				(x - radius > aX && x - radius < aX + this.WIDTH) ) &&
+				((y + radius > aY && y + radius < aY + this.HEIGHT) ||
+				(y - radius > aY && y - radius < aY + this.HEIGHT))) {
+			System.out.println(this + " overlaps " + ball);
+		}
+		
+		return ((x + radius > aX && x + radius < aX + this.width()) ||
+				(x - radius > aX && x - radius < aX + this.width()) ) &&
+				((y + radius > aY && y + radius < aY + this.height()) ||
+				(y - radius > aY && y - radius < aY + this.height()));
 	}
 
 	@Override
 	public Gadget takeAction() {
 		return this;
+	}
+
+	@Override
+	public void setCoverage(int[][] coverage) {
+		int x = (int) this.position().x();
+		int y = (int) this.position().y();
+		coverage[y][x] = 1;
 	}
 
 }

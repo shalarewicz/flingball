@@ -26,13 +26,25 @@ triangleBumper name=testTriangle3 x=2 y=8 orientation=90
 triangleBumper name=testTriangle4 x=10 y=5 orientation=180
 triangleBumper name=testTriangle5 x=4 y=13 orientation=270
 triangleBumper name=testTriangle6 x=18 y=17 orientation=90
+triangleBumper name=testTriangle7 x=15 y=17 orientation=0
 
 absorber name = testAbsorber x = 15 y = 19 width = 4 height = 1
 
 fire trigger = testAbsorber action = testAbsorber
 
-fire trigger = testTriangle6 action = testTriangle6
-
-fire trigger = testCircle action = testCircle
-fire trigger = testCircle2 action = testCircle2
 fire trigger = testTriangle6 action = ADD_SQUARE
+
+fire trigger = testCircle action = ADD_SQUARE
+fire trigger = testCircle2 action = ADD_SQUARE
+fire trigger = testTriangle6 action = ADD_SQUARE
+fire trigger = testTriangle5 action = ADD_SQUARE
+fire trigger = testTriangle4 action = ADD_SQUARE
+fire trigger = testTriangle3 action = ADD_SQUARE
+fire trigger = testTriangle2 action = ADD_SQUARE
+fire trigger = testbump1 action = ADD_SQUARE
+fire trigger = testbump2 action = ADD_SQUARE
+fire trigger = testbump3 action = ADD_SQUARE
+fire trigger = testbump4 action = ADD_SQUARE
+fire trigger = testbump5 action = ADD_SQUARE
+fire trigger = testbump6 action = ADD_SQUARE
+fire trigger = testbump7 action = ADD_SQUARE
