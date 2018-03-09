@@ -30,13 +30,13 @@ public class TriangleBumper implements Gadget {
 	
 	private final int x, y;
 	private Orientation orientation = Orientation.ZERO;
-	//TODO Walls was final
 	private List<Wall> walls;
 	private String name;
 	private String trigger = Gadget.NO_TRIGGER;
 	
 	private double reflectionCoefficient;
-	private Board.Action action = Board.Action.DEFAULT;
+	private int HEIGHT = 1;
+	private int WIDTH = 1;
 	
 	public enum Orientation{
 		ZERO, NINETY, ONEEIGHTY, TWOSEVENTY
@@ -123,12 +123,17 @@ public class TriangleBumper implements Gadget {
 	
 	@Override 
 	public int height() {
-		return 1;
+		return this.HEIGHT;
 	}
 	
 	@Override 
 	public int width() {
-		return 1;
+		return WIDTH;
+	}
+	
+	@Override 
+	public int area() {
+		return this.WIDTH * this.HEIGHT;
 	}
 
 	@Override
@@ -156,21 +161,7 @@ public class TriangleBumper implements Gadget {
 	}
 
 	@Override
-	public Gadget setAction(Board.Action action) {
-		// TODO check that this doesn't mutate this
-		TriangleBumper result = this;
-		result.action = action;
-		return result;
-	}
-
-	@Override
-	public Board.Action getAction() {
-		return this.action;
-	}
-	
-	@Override
-	public Gadget takeAction() {
-		// TODO Check if this mutates this
+	public void takeAction() {
 		Orientation orientation;
 		switch (this.orientation) {
 		case ZERO:
@@ -192,7 +183,6 @@ public class TriangleBumper implements Gadget {
 		TriangleBumper newTriangle = new TriangleBumper(this.name, this.x, -this.y, orientation);
 		this.walls = newTriangle.walls;
 		this.orientation = newTriangle.orientation;
-		return this;
 	}
 	
 		@Override
@@ -294,6 +284,11 @@ public class TriangleBumper implements Gadget {
 		int x = (int) this.position().x();
 		int y = (int) this.position().y();
 		coverage[y][x] = 1;
+	}
+	
+	@Override
+	public void fireAll() {
+		// do nothing.
 	}
 	
 }

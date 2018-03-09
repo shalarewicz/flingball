@@ -35,8 +35,9 @@ public class Wall implements Gadget {
 
 	/*
 	 * AF(x1, y1, x2, y2, name) = a line segment from (x1, y1) to (x2, y2) with Name name and 
-	 * TODO: Rep Invariant ::= Name in Location/
-	 * TODO: Safety from rep exposure
+	 * Rep Invariant ::= true
+	 * Safety from rep exposure
+	 * 	Only final or immutable types are returned. 
 	 */
 	
 	private void checkRep() {
@@ -113,14 +114,18 @@ public class Wall implements Gadget {
 	}
 	
 	@Override
+	public int area() {
+		return 0;
+	}
+	
+	@Override
 	public double getReflectionCoefficient() {
 		return REFLECTION_COEFFICIENT;
 	}
 	
 	@Override
 	public void setReflectionCoefficient(double x) {
-		//TODO
-		throw new RuntimeException("Cannot change coefficient of reflection");
+		// Do Nothing
 	}
 
 	@Override
@@ -138,20 +143,8 @@ public class Wall implements Gadget {
 	}
 
 	@Override
-	public Gadget setAction(Board.Action action) {
-		//TODO throw and exception?
-		return this;
-	}
-
-	@Override
-	public Board.Action getAction() {
-		return Board.Action.DEFAULT;
-	}
-
-	@Override
 	public BufferedImage generate(int L) {
-		// TODO Auto-generated method stub
-		return null;
+		return new BufferedImage(0, 0, BufferedImage.TYPE_3BYTE_BGR);
 	}
 
 	@Override
@@ -191,13 +184,18 @@ public class Wall implements Gadget {
 	}
 
 	@Override
-	public Gadget takeAction() {
-		return this;
+	public void takeAction() {
+		// do nothing
 	}
 	
 	@Override
 	public void setCoverage(int[][] coverage) {
 		
-		//TODO do nothing
+		// do nothing
+	}
+	
+	@Override
+	public void fireAll() {
+		// do nothing.
 	}
 }

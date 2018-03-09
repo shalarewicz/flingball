@@ -34,17 +34,17 @@ fire trigger = testAbsorber action = testAbsorber
 
 fire trigger = testTriangle6 action = ADD_SQUARE
 
-fire trigger = testCircle action = ADD_SQUARE
+fire trigger = testCircle action = ADD_ABSORBER
 fire trigger = testCircle2 action = ADD_SQUARE
-fire trigger = testTriangle6 action = ADD_SQUARE
-fire trigger = testTriangle5 action = ADD_SQUARE
-fire trigger = testTriangle4 action = ADD_SQUARE
-fire trigger = testTriangle3 action = ADD_SQUARE
-fire trigger = testTriangle2 action = ADD_SQUARE
-fire trigger = testbump1 action = ADD_SQUARE
+fire trigger = testTriangle6 action = ADD_CIRCLE
+fire trigger = testTriangle5 action = ADD_TRIANGLE
+fire trigger = testTriangle4 action = ADD_TRIANGLE
+fire trigger = testTriangle3 action = ADD_ABSORBER
+fire trigger = testTriangle2 action = ADD_TRIANGLE
+fire trigger = testbump1 action = ADD_CIRCLE
 fire trigger = testbump2 action = ADD_SQUARE
-fire trigger = testbump3 action = ADD_SQUARE
+fire trigger = testbump3 action = ADD_TRIANGLE
 fire trigger = testbump4 action = ADD_SQUARE
-fire trigger = testbump5 action = ADD_SQUARE
+fire trigger = testbump5 action = ADD_CIRCLE
 fire trigger = testbump6 action = ADD_SQUARE
-fire trigger = testbump7 action = ADD_SQUARE
+fire trigger = testbump7 action = ADD_CIRCLE

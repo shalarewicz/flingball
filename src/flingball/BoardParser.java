@@ -22,7 +22,6 @@ public class BoardParser {
 		String test = "boards/sampleBoard.fb";
 		try {
 			Path filePath = Paths.get(test);
-		//	Path filePath = Paths.get("boards/sampleBoard.fb");
 			Stream<String> fileIn = Files.lines(filePath);
 			StringBuilder boardFile = new StringBuilder();
 			fileIn.forEach(s -> boardFile.append(s+"\n"));
@@ -73,7 +72,7 @@ public class BoardParser {
 	
 	private static Board makeAbstractSyntaxTree(final ParseTree<BoardGrammar> parseTree) {
 		switch (parseTree.name()) {
-        case BOARD: //  board \n (comment | command)*
+        case BOARD: //  BOARD ::= boardName '\n'* ((comment '\n'*) | (command '\n'*))* ;
             {
             	List<ParseTree<BoardGrammar>> children = parseTree.children();
             	
@@ -84,16 +83,17 @@ public class BoardParser {
             		List<ParseTree<BoardGrammar>> grandChildren = child.children();
             		
             		switch (children.get(i).name()) {
-            		case COMMENT:
+            		case COMMENT: // comment ::= '#' [A-Za-z0-9\.'=]* '\n';
             			continue;
             		
-            		case COMMAND:{
+            		case COMMAND: // command ::= BALL | BUMPER | ABSORBER | ACTION;
+            		{
             			
             			ParseTree<BoardGrammar> grandChild = grandChildren.get(0);
             			List<ParseTree<BoardGrammar>> greatGrandChildren = grandChild.children();
             			switch (grandChild.name()) {
             			
-            			case BALL: //BALL ::= 'ball name' '=' NAME 'x' '='FLOAT 'y' '='FLOAT 'xVelocity' '=' FLOAT 'yVelocity' '=' FLOAT;
+            			case BALL: //BALL ::= 'ball' 'name' '=' NAME 'x' '='FLOAT 'y' '='FLOAT 'xVelocity' '=' FLOAT 'yVelocity' '=' FLOAT '\n';
             			{
             				
             				final String name = greatGrandChildren.get(0).text();
@@ -106,12 +106,13 @@ public class BoardParser {
             				continue;
             			}
             			
-            			case BUMPER: {
+            			case BUMPER: //BUMPER ::= triangleBumper | circleBumper | squareBumper;
+            			{
             				
             				ParseTree<BoardGrammar> greatGrandChild = greatGrandChildren.get(0);
             				List<ParseTree<BoardGrammar>> bumperProperties = greatGrandChild.children();
             				switch (greatGrandChild.name()) {
-            				case SQUAREBUMPER: // name=NAME x=INTEGER y=INTEGER
+            				case SQUAREBUMPER: //squareBumper ::= 'squareBumper name' '=' NAME 'x' '=' INTEGER 'y' '=' INTEGER '\n';
             				{
             					String name = bumperProperties.get(0).text();
             					final int x = Integer.parseInt(bumperProperties.get(1).text());
@@ -121,7 +122,7 @@ public class BoardParser {
             					board.addGadget(bumper);
             					continue;
             				}
-            				case CIRCLEBUMPER: // name=NAME x=INTEGER y=INTEGER
+            				case CIRCLEBUMPER: // circleBumper ::= 'circleBumper name' '=' NAME 'x' '=' INTEGER 'y' '=' INTEGER '\n';
             				{
             					String name = bumperProperties.get(0).text();
             					final int x = Integer.parseInt(bumperProperties.get(1).text());
@@ -131,7 +132,7 @@ public class BoardParser {
             					board.addGadget(bumper);
             					continue;
             				}
-            				case TRIANGLEBUMPER: // name=NAME x=INTEGER y=INTEGER (orientation=0|90|180|270)?
+            				case TRIANGLEBUMPER: // triangleBumper ::= 'triangleBumper name' '=' NAME 'x' '=' INTEGER 'y' '=' INTEGER ('orientation' '=' ORIENTATION)? '\n';
             				{
             					Gadget bumper;
             					String name = bumperProperties.get(0).text();
@@ -158,7 +159,8 @@ public class BoardParser {
             					throw new RuntimeException("Should never get here");
             				}
             			}
-            			case ABSORBER: {
+            			case ABSORBER: //ABSORBER ::= 'absorber' 'name' '=' NAME 'x' '=' INTEGER 'y' '=' INTEGER 'width' '=' INTEGER 'height' '=' INTEGER '\n';
+            			{
             				String name = greatGrandChildren.get(0).text();
             				int x = Integer.parseInt(greatGrandChildren.get(1).text());
             				int y = Integer.parseInt(greatGrandChildren.get(2).text());
@@ -167,11 +169,12 @@ public class BoardParser {
             				board.addGadget(new Absorber(name, x, y, width, height));
             				continue;
             			}
-            			case ACTION: {
+            			case ACTION: // ACTION ::= 'fire' 'trigger' '=' NAME 'action' '=' (NAME | ACTIONTOTAKE) '\n';
+            			{
             				String trigger = greatGrandChildren.get(0).text();
             				String action = greatGrandChildren.get(1).text();
-            				Board.Action actionToTake = Board.Action.DEFAULT;
-        					switch (greatGrandChildren.get(1).text()) {
+            				Board.Action actionToTake;
+        					switch (action) {
         					case "FIRE_ALL":{
         						actionToTake = Board.Action.FIRE_ALL;
         						break;
@@ -201,11 +204,13 @@ public class BoardParser {
         						break;
         					}
         					default:{
-        						System.out.println("Trigger: " + trigger + ", action: " + action);
-        						board.addAction(trigger, action, Board.Action.DEFAULT);;
+        						// action is a gadget
+        						board.addAction(trigger, action);;
         						continue;
         					}
         					}
+        					// action is a Board Action
+        					
             				board.addAction(trigger, actionToTake);
             				continue;
             			}
@@ -222,7 +227,7 @@ public class BoardParser {
             	
             	return board;
             }
-        case BOARDNAME: //board name = NAME (gravity=FLOAT)? (friction1=FLOAT)? (friction2=FLOAT)?
+        case BOARDNAME: // boardName ::='board name''='NAME (GRAVITY)? (FRICTION1)? (FRICTION2)? '\n';
         {
         	List<ParseTree<BoardGrammar>> children = parseTree.children();
         	double gravity = Board.GRAVITY;

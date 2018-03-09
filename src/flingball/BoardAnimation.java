@@ -60,7 +60,7 @@ public class BoardAnimation {
 
 	        public TestPane(Board board) {
 	        	this.board= board;
-	        	this.L = board.L;
+	        	this.L = board.getL();
 	            Timer timer = new Timer();
 	            TimerTask play = new TimerTask() {
 	                @Override

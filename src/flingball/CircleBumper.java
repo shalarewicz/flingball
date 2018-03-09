@@ -28,7 +28,6 @@ public class CircleBumper implements Gadget {
 	private String name;
 	private double reflectionCoefficient = Gadget.REFLECTION_COEFFICIENT;
 	private final Circle bumper;
-	private Board.Action action = Board.Action.DEFAULT;
 
 	private double spin = 0;
 	
@@ -63,6 +62,11 @@ public class CircleBumper implements Gadget {
 	public int width() {
 		return 1;
 	}
+	
+	@Override 
+	public int area() {
+		return this.width() * this.height();
+	}
 
 	@Override
 	public double getReflectionCoefficient() {
@@ -83,20 +87,6 @@ public class CircleBumper implements Gadget {
 	@Override
 	public String getTrigger() {
 		return this.trigger;
-	}
-
-	@Override
-	public Gadget setAction(Board.Action action) {
-		//TODO - new constructor
-		
-		CircleBumper result = this;
-		result.action = action;
-		return result;
-	}
-
-	@Override
-	public Board.Action getAction() {
-		return this.action;
 	}
 
 	@Override
@@ -146,12 +136,13 @@ public class CircleBumper implements Gadget {
 	}
 
 	@Override
-	public Gadget takeAction() {
-		CircleBumper result = this;
-		//if (result.spin == 0) {
-			result.spin = SPIN_RATE;
-		//}
-		return result;
+	public void takeAction() {
+		if (this.spin == 0) {
+			this.spin = SPIN_RATE;
+		}
+		else {
+			this.spin = 0;
+		}
 	}
 	
 	@Override
@@ -159,5 +150,10 @@ public class CircleBumper implements Gadget {
 		int x = (int) this.position().x();
 		int y = (int) this.position().y();
 		coverage[y][x] = 1;
+	}
+
+	@Override
+	public void fireAll() {
+		//do nothing.
 	}
 }

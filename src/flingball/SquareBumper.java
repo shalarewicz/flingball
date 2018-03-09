@@ -22,15 +22,13 @@ public class SquareBumper implements Gadget {
 	
 	private double reflectionCoefficient = Gadget.REFLECTION_COEFFICIENT;
 	
-	//TODO Chnage to x,y
-	private final int xAnchor, yAnchor;
+	private final int x, y;
 	
 	private final int WIDTH = 1;
 	private final int HEIGHT = 1;
 	
 	private final List<Wall> walls;
 	
-	private Board.Action action = Board.Action.DEFAULT;
 
 	/*
 	 * AF(name, xAnchor, yAnchor) ::= A square bumper at (xAnchor, yAnchor) on a flingBall board. 
@@ -55,8 +53,8 @@ public class SquareBumper implements Gadget {
 	
 	public SquareBumper(String name, int x, int y) {
 		this.name = name;
-		this.xAnchor = x;
-		this.yAnchor = -y;
+		this.x = x;
+		this.y = -y;
 		
 		//Bounding walls
 		final Wall top = new Wall(name + " top", x, - y, x + 1, -y);
@@ -73,8 +71,8 @@ public class SquareBumper implements Gadget {
 		this.name = name;
 		int x = (int) position.x();
 		int y = (int) -position.y();
-		this.xAnchor = x;
-		this.yAnchor = y;
+		this.x = x;
+		this.y = y;
 		
 		//Bounding walls
 		final Wall top = new Wall(name + " top", x, - y, x + 1, -y);
@@ -88,7 +86,7 @@ public class SquareBumper implements Gadget {
 
 	@Override
 	public Vect position() {
-		return new Vect(xAnchor, -yAnchor);
+		return new Vect(x, -y);
 	}
 
 	@Override
@@ -106,6 +104,11 @@ public class SquareBumper implements Gadget {
 		return this.WIDTH;
 	}
 
+	@Override 
+	public int area() {
+		return this.WIDTH * this.HEIGHT;
+	}
+	
 	@Override
 	public double getReflectionCoefficient() {
 		return this.reflectionCoefficient;
@@ -129,19 +132,6 @@ public class SquareBumper implements Gadget {
 	@Override
 	public String getTrigger() {
 		return this.trigger;
-	}
-
-	@Override
-	public Gadget setAction(Board.Action action) {
-		// TODO Auto-generated method stub
-		throw new RuntimeException("Not Yet Implemented");
-
-	}
-
-	@Override
-	public Board.Action getAction() {
-		return this.action;
-
 	}
 
 	@Override
@@ -177,7 +167,7 @@ public class SquareBumper implements Gadget {
 	@Override
 	public int hashCode() {
 		// Does this create a problem for a square and circle bumper in the same spot?
-		return this.xAnchor + this.yAnchor;
+		return this.x + this.y;
 	}
 	
 	@Override
@@ -186,7 +176,7 @@ public class SquareBumper implements Gadget {
 	}
 
 	private boolean samePosition(SquareBumper that) {
-		return this.xAnchor == that.xAnchor && this.yAnchor == that.yAnchor;
+		return this.x == that.x && this.y == that.y;
  	}
 	
 	
@@ -198,18 +188,10 @@ public class SquareBumper implements Gadget {
 		final double aX = this.position().x();
 		final double aY = this.position().y();
 		
-//		//TODO this is backwards
-//		if (x - radius < aX && x + radius > aX + this.width() && 
-//				y - radius < aY && y + radius > aY + this.height()) System.out.println(this + " overlaps " + ball);
-//		return x - radius < aX && x + radius > aX + this.width() && 
-//				y - radius < aY && y + radius > aY + this.height();
-				
-				
 		if (((x + radius > aX && x + radius < aX + WIDTH) ||
 				(x - radius > aX && x - radius < aX + this.WIDTH) ) &&
 				((y + radius > aY && y + radius < aY + this.HEIGHT) ||
 				(y - radius > aY && y - radius < aY + this.HEIGHT))) {
-			System.out.println(this + " overlaps " + ball);
 		}
 		
 		return ((x + radius > aX && x + radius < aX + this.width()) ||
@@ -219,8 +201,8 @@ public class SquareBumper implements Gadget {
 	}
 
 	@Override
-	public Gadget takeAction() {
-		return this;
+	public void takeAction() {
+		// do nothing
 	}
 
 	@Override
@@ -228,6 +210,11 @@ public class SquareBumper implements Gadget {
 		int x = (int) this.position().x();
 		int y = (int) this.position().y();
 		coverage[y][x] = 1;
+	}
+	
+	@Override
+	public void fireAll() {
+		// do nothing.
 	}
 
 }

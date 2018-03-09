@@ -111,7 +111,6 @@ public class Ball {
 	 * @return A new ball in the end location. 
 	 */
 	
-	//TODO Ball should be mutable? otherwise need to remove and add balls to the board each time they change
 	public void move(double time) {
 		// distance = position + velocity * t
 		Vect newCenter = this.cartesianVelocity.times(time).plus(this.cartesianCenter);
@@ -193,7 +192,12 @@ public class Ball {
 		
 	}
 	
-	//TODO both moves
+	/**
+	 * If the ball is off a 20x20 grid it sets is location to the point on the grid border perpendicular to the ball's center
+	 * @param v
+	 * @param radius
+	 * @return
+	 */
 	private static Vect roundedVector(Vect v, double radius) {
 		double vx = v.x();
 		double vy = v.y();
@@ -264,7 +268,7 @@ public class Ball {
 	public void setVelocity(Vect v) {
 		this.boardVelocity = v;
 		this.cartesianVelocity = getCartesianCenterFromBoardCenter(v);
-		//return new Ball(this.name, this.boardCenter, v, this.radius);
+		checkRep();
 	}
 	
 	/**
@@ -314,7 +318,7 @@ public class Ball {
 	public void reflectLine(LineSegment line) {
 		this.cartesianVelocity = Physics.reflectWall(line, this.cartesianVelocity);
 		this.boardVelocity = convertVelocity(this.cartesianVelocity);
-		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity)), this.radius);
+		checkRep();
 	}
 	
 	/**
@@ -326,7 +330,7 @@ public class Ball {
 	public void reflectLine(LineSegment line, Double reflectionCoeff) {
 		this.cartesianVelocity = Physics.reflectWall(line, this.cartesianVelocity, reflectionCoeff);
 		this.boardVelocity = convertVelocity(this.cartesianVelocity);
-		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectWall(line, this.cartesianVelocity, reflectionCoeff)), this.radius);
+		checkRep();
 	}
 	
 	/**
@@ -337,7 +341,7 @@ public class Ball {
 	public void reflectCircle(Circle circle) {
 		this.cartesianVelocity = Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity);
 		this.boardVelocity = convertVelocity(this.cartesianVelocity);
-		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity)), this.radius);
+		checkRep();
 	}
 	
 	/**
@@ -349,14 +353,13 @@ public class Ball {
 	public void reflectCircle(Circle circle, Double reflectionCoeff) {
 		this.cartesianVelocity = Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity, reflectionCoeff);
 		this.boardVelocity = convertVelocity(this.cartesianVelocity);
-	
-		//return new Ball(this.name, this.boardCenter, convertVelocity(Physics.reflectCircle(circle.getCenter(), this.cartesianCenter, cartesianVelocity, reflectionCoeff)), this.radius);
+		checkRep();
 	}
 	
 	public void reflectRotatingCircle(Circle circle, double angularVelocity, double relectionCoeff) {
-		//TODO ASSERT velocity < 200;
 		this.cartesianVelocity = Physics.reflectRotatingCircle(circle, circle.getCenter(), angularVelocity, new Circle(this.cartesianCenter, this.radius), this.cartesianVelocity, 1.0);
 		this.boardVelocity = convertVelocity(this.cartesianVelocity);
+		checkRep();
 	}
 	
 	@Override
@@ -378,44 +381,48 @@ public class Ball {
 	
 	@Override
 	public int hashCode() {
-		//TODO
-		return name.hashCode();
+		return name.hashCode() + this.cartesianCenter.hashCode();
 	}
 
+	/**
+	 * 
+	 * @return name of the ball
+	 */
 	public String name() {
 		return this.name;
 	}
 
+	/**
+	 * 
+	 * @return true if the ball is currently trapped;
+	 */
 	public boolean isTrapped() {
 		return this.trapped ;
 	}
 	
+	/**
+	 * Traps the ball
+	 */
 	public void trap() {
 		this.trapped = true;
 	}
 	
+	/**
+	 * releases the ball
+	 */
 	public void release() {
 		this.trapped = false;
 	}
 	
-	
-	// TODO was ballInside - deprecate
-	public boolean insideGadget(Gadget g) {
-		final double x = this.boardCenter.x();
-		final double y = this.boardCenter.y();
-		final double gX = g.position().x();
-		final double gY = g.position().y();
-		
-		return x - radius > gX && x + radius < gX + g.width() && 
-				y - radius > gY && y + radius < gY + g.height();
-			
-	}
-
+	/**
+	 * 
+	 * @param vect new position of the ball on a flingball board. 
+	 */
 	public void setPosition(Vect vect) {
 		this.boardCenter = vect;
 		this.cartesianCenter = getCartesianCenterFromBoardCenter(this.boardCenter);
 		this.anchor = getAnchorFromBoardCenter(this.boardCenter);
 	}
-
+	
 }
 

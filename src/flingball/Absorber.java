@@ -25,7 +25,6 @@ public class Absorber implements Gadget {
 	private Deque<Ball> balls = new LinkedList<Ball>();
 	private int ballCount = 0;
 	private List<Wall> walls = new ArrayList<Wall>();
-	private Board.Action action = Board.Action.DEFAULT;
 
 	/*
 	 * AF(x, y, width, height, name) ::= An absorber (ball return mechanism) covering the rectangle bounded by (x,y)*L
@@ -88,16 +87,21 @@ public class Absorber implements Gadget {
 	public int width() {
 		return this.width;
 	}
+	
+	@Override 
+	public int area() {
+		return this.width * this.height + 1;
+	}
 
 	@Override
 	public double getReflectionCoefficient() {
-		//TODO Create a checked exception
+		//TODO Create a checked exception Fixed when Absorber has its' own interface
 		throw new RuntimeException("Not supported");
 	}
 	
 	@Override
 	public void setReflectionCoefficient(double x) {
-		//TODO Create a checked exception
+		//TODO Create a checked exception Fixed when Absorber has its' own interface
 		throw new RuntimeException("Not supported");
 	}
 
@@ -140,20 +144,6 @@ public class Absorber implements Gadget {
 	}
 
 	@Override
-	public Gadget setAction(Board.Action action) {
-		// TODO Auto-generated method stub
-		Absorber result = this;
-		result.action = action;
-		return result;
-
-	}
-
-	@Override
-	public Board.Action getAction() {
-		return this.action;
-	}
-
-	@Override
 	public BufferedImage generate(int L) {
 		BufferedImage output = new BufferedImage(L*this.width, L*this.height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = (Graphics2D) output.getGraphics();
@@ -190,14 +180,13 @@ public class Absorber implements Gadget {
 	}
 	
 	@Override
-	public Gadget takeAction() {
+	public void takeAction() {
 		Ball toFire = balls.removeFirst();
 		toFire.release();
 		toFire.setVelocity(new Vect(0, -50));
 		double r = toFire.getRadius();
 		toFire.setPosition(new Vect(x + width - r, -y - r));
 		ballCount--;
-		return this;
 	}
 	
 	@Override
@@ -240,35 +229,22 @@ public class Absorber implements Gadget {
 		int x = (int) this.position().x();
 		int y = (int) this.position().y();
 		
-		//System.out.println("Setting " + this);
-		
 		for (int j = y; j < y + this.height; j++) {
 			for (int i = x; i < x + this.width; i++) {
 			coverage[j][i] = 1;
-		//	coverage[j][x] = 1;
-		//	System.out.println(j + ", " + i);
 			}
-		//	System.out.println(j + ", " + x);
 		}
-//		for (int i = x; i < x + this.width; i++) {
-//			coverage[y][i] = 1;
-//			System.out.println(y + ", " + i);
-//		}
-//		for (int j = y; j < y + this.height; j++) {
-//			coverage[j][x] = 1;
-//			System.out.println(j + ", " + x);
-//		}
 		coverage[y - 1][x + this.width() - 1] = 1;
 	}
 
 	
-	
-//	public static void main(String[] args) {
-//		Gadget toDraw = new Absorber("test", 1, 1, 10, 5);
-//		JFrame frame = new JFrame("this is ab absorber");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.add(new JLabel(new ImageIcon(toDraw.generate(20))));
-//        frame.pack();
-//        frame.setVisible(true);
-//	}
+	@Override
+	public void fireAll() {
+		for (Ball ball :this.balls) {
+			ball.setPosition(new Vect(this.x + this.width - ball.getRadius(), this.y - ball.getRadius()));
+			ball.setVelocity(new Vect(Math.random() * 100, -Math.random()* 100));
+			ball.release();
+		}
+		ballCount = 0;
+	}
 }

@@ -2,8 +2,9 @@
 package flingball;
 
 import java.awt.image.BufferedImage;
-import java.io.InvalidObjectException;
-import java.util.List;
+
+//TODO Create a separate interface for absorber and wall;
+// Gadget interface, Bumper, Absorber, Wall interfaces which extend Gadget
 
 /**
  * A Gadget is an object that can be placed on a flingball board or used to construct a flingball board. 
@@ -36,6 +37,8 @@ public interface Gadget {
 	 * @return The width of the object in L units
 	 */
 	public int width();
+	
+	public int area();
 	/**
 	 * 
 	 * @return The coefficient of reflection of the gadget
@@ -73,26 +76,11 @@ public interface Gadget {
 	 */
 	public String getTrigger();
 	
-	
-	/**
-	 * Sets an action for this gadget. 
-	 * 
-	 * @throws InvalidObjectException if gadget does not have a trigger;
-	 */
-	public Gadget setAction(Board.Action action); //TODO throws InvalidObjectException;
-	
-	/**
-	 * 
-	 * @return The action the object takes when triggered or Action.NO_ACTION if Gadget has no action.
-	 */
-	public Board.Action getAction();
-	
 	/**
 	 * 
 	 * @return A Gadget that has had it's action taken
 	 */
-	// TODO make this void?
-	public Gadget takeAction();
+	public void takeAction();
 	
 	/**
 	 * Generates an image of the gadget. 
@@ -101,7 +89,11 @@ public interface Gadget {
 	 */
 	public BufferedImage generate(int L);
 	
-	//TODO exposes the rep of Board
+	//TODO exposes the rep of Board this can be handled when Absorber implements it's own interface
+	/**
+	 * 
+	 * @param coverage
+	 */
 	void setCoverage(int[][] coverage);
 		
 	public final static String NO_TRIGGER = "NO_TRIGGER";
@@ -118,6 +110,10 @@ public interface Gadget {
 	
 	public boolean ballOverlap(Ball ball);
 
+	/**
+	 * Fires all balls trapped in the gadget;
+	 */
+	public void fireAll();
 	
 	
 }
